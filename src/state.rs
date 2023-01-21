@@ -7,7 +7,8 @@ pub enum AppState {
 	MainMenu,
 	InGame,
 	Paused,
-	GameOver
+	GameOver,
+	Splash,
 }
 
 struct Score {

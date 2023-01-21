@@ -73,6 +73,7 @@ fn main() {
 		//.init_resource::<state::InGameState>()
 		.add_plugins(DefaultPlugins)
 		.add_plugin(player::HelloPlugin)
+		.add_startup_system(ui::setup)
 		.add_system(player::lol)
 		.add_system(ui::button_system)
 		.run();
