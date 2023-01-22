@@ -2,9 +2,31 @@ use bevy::{
 	prelude::*,
 };
 
+use crate::state;
+use super::{despawn_screen};
+
+pub struct UiPlugin;
+
 const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
 const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
 const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
+
+impl Plugin for UiPlugin {
+	fn build(&self, app: &mut App) {
+		// As this plugin is managing the splash screen, it will focus on the state `state::AppState::Splash`
+		app
+			// When entering the state, spawn everything needed for this screen
+			.add_system_set(SystemSet::on_enter(state::AppState::MainMenu).with_system(ui_setup))
+			.add_system_set(
+				SystemSet::on_exit(state::AppState::MainMenu)
+					.with_system(despawn_screen::<OnMainMenu>),
+			);
+	}
+}
+
+// Tag component used to tag entities added on the splash screen
+#[derive(Component)]
+struct OnMainMenu;
 
 pub fn button_system(
 	mut interaction_query: Query<
@@ -32,9 +54,7 @@ pub fn button_system(
 	}
 }
 
-pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-	// ui camera
-	commands.spawn(Camera2dBundle::default());
+pub fn ui_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 	commands
 		.spawn(NodeBundle {
 			style: Style {
@@ -63,7 +83,7 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 					parent.spawn(TextBundle::from_section(
 						"Button",
 						TextStyle {
-								font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+								font: asset_server.load("OverpassMono-SemiBold.ttf"),
 								font_size: 40.0,
 								color: Color::rgb(0.9, 0.9, 0.9),
 						},

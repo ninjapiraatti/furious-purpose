@@ -8,6 +8,7 @@ edition = "2021"
 
 [dependencies]
 bevy = "0.9.1"
+bevy_asset_loader = "0.14.1"
 
 # Enable a small amount of optimization in debug mode
 [profile.dev]

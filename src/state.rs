@@ -4,11 +4,12 @@ use bevy::{
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum AppState {
+	Loading,
+	Splash,
 	MainMenu,
 	InGame,
 	Paused,
 	GameOver,
-	Splash,
 }
 
 struct Score {
