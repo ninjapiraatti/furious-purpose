@@ -9,7 +9,7 @@ use bevy_asset_loader::{
 mod player;
 mod state;
 mod ui;
-mod assets;
+mod loading;
 mod splash;
 
 fn print_position_system(query: Query<&Transform>) {
@@ -80,13 +80,8 @@ fn main() {
 		.insert_resource(WinitSettings::desktop_app())
 		.insert_resource(ReportExecutionOrderAmbiguities)
 		//.init_resource::<state::InGameState>()
-		.add_loading_state(
-			LoadingState::new(state::AppState::Loading)
-				.continue_to_state(state::AppState::Splash)
-				.with_collection::<assets::FontAssets>()
-				.with_collection::<assets::ImageAssets>()
-		)
-		.add_state(state::AppState::Splash)
+		.add_state(state::AppState::Loading)
+		.add_plugin(loading::LoadingPlugin)
 		.add_startup_system(setup)
 		.add_plugins(DefaultPlugins)
 		//.add_plugin(player::HelloPlugin)

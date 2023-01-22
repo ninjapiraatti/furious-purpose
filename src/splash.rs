@@ -2,7 +2,7 @@ use bevy::{
 	prelude::*,
 };
 
-use crate::state;
+use crate::{state, loading::ImageAssets};
 use super::{despawn_screen};
 
 // Splash screen
@@ -32,8 +32,8 @@ struct OnSplashScreen;
 #[derive(Resource, Deref, DerefMut)]
 struct SplashTimer(Timer);
 
-fn splash_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-	let icon = asset_server.load("logo.png");
+fn splash_setup(mut commands: Commands, image_assets: Res<ImageAssets>) {
+	let icon = image_assets.logo.clone();
 	// Display the logo
 	commands
 		.spawn((
@@ -41,7 +41,7 @@ fn splash_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 				style: Style {
 					align_items: AlignItems::Center,
 					justify_content: JustifyContent::Center,
-					size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+					size: Size::new(Val::Percent(1.0), Val::Percent(100.0)),
 					..default()
 				},
 				..default()
@@ -60,7 +60,7 @@ fn splash_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 			});
 		});
 	// Insert the timer as a resource
-	commands.insert_resource(SplashTimer(Timer::from_seconds(0.0, TimerMode::Once)));
+	commands.insert_resource(SplashTimer(Timer::from_seconds(1.0, TimerMode::Once)));
 }
 
 // Tick the timer, and change state when finished
