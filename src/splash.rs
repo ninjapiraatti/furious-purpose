@@ -41,7 +41,7 @@ fn splash_setup(mut commands: Commands, image_assets: Res<ImageAssets>) {
 				style: Style {
 					align_items: AlignItems::Center,
 					justify_content: JustifyContent::Center,
-					size: Size::new(Val::Percent(1.0), Val::Percent(100.0)),
+					size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
 					..default()
 				},
 				..default()
