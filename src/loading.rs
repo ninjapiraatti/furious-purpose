@@ -19,6 +19,7 @@ impl Plugin for LoadingPlugin {
 				LoadingState::new(state::AppState::Loading)
 					.with_collection::<FontAssets>()
 					.with_collection::<ImageAssets>()
+					.with_collection::<TextureAssets>()
 					.continue_to_state(state::AppState::Splash),
 			)
 			.add_system_set(SystemSet::on_update(state::AppState::Splash)
@@ -40,6 +41,12 @@ pub struct FontAssets {
 
 #[derive(AssetCollection, Resource)]
 pub struct ImageAssets {
+	#[asset(path = "logo.png")]
+	pub logo: Handle<Image>,
+}
+
+#[derive(AssetCollection, Resource)]
+pub struct TextureAssets {
 	#[asset(path = "logo.png")]
 	pub logo: Handle<Image>,
 }

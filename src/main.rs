@@ -89,6 +89,7 @@ fn main() {
 		.add_plugin(splash::SplashPlugin)
 		.add_plugin(mainmenu::MainMenuPlugin)
 		.add_plugin(game::GamePlugin)
+		.add_plugin(player::PlayerPlugin)
 		//.add_system(player::lol)
 		.run();
 }
