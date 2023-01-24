@@ -70,6 +70,8 @@ fn countdown(
 	mut timer: ResMut<SplashTimer>,
 ) {
 	if timer.tick(time.delta()).finished() {
+		println!("CHANGE SCENE");
 		game_state.set(state::AppState::MainMenu).unwrap();
 	}
+	println!("{:?}", timer.elapsed_secs());
 }

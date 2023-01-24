@@ -8,9 +8,10 @@ use bevy_asset_loader::{
 };
 mod player;
 mod state;
-mod ui;
+mod mainmenu;
 mod loading;
 mod splash;
+mod game;
 
 fn print_position_system(query: Query<&Transform>) {
 	for transform in query.iter() {
@@ -86,16 +87,16 @@ fn main() {
 		.add_plugins(DefaultPlugins)
 		//.add_plugin(player::HelloPlugin)
 		.add_plugin(splash::SplashPlugin)
-		.add_plugin(ui::UiPlugin)
+		.add_plugin(mainmenu::MainMenuPlugin)
+		.add_plugin(game::GamePlugin)
 		//.add_system(player::lol)
-		.add_system(ui::button_system)
-
 		.run();
 }
 
 // Generic system that takes a component as a parameter, and will despawn all entities with that component
 fn despawn_screen<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
     for entity in &to_despawn {
+		println!("Entity: {:?}", entity);
         commands.entity(entity).despawn_recursive();
     }
 }
