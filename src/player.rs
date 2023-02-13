@@ -21,15 +21,6 @@ enum GameControl {
 	Down,
 }
 
-struct PlayerHead {
-	direction: Direction,
-}
-
-#[derive(Default, Resource)]
-struct Actions {
-	pub player_movement: Option<Vec2>,
-}
-
 impl GameControl {
 	fn opposite(self) -> Self {
 		match self {
@@ -40,6 +31,16 @@ impl GameControl {
 		}
 	}
 }
+
+struct PlayerHead {
+	direction: Direction,
+}
+
+#[derive(Default, Resource)]
+struct Actions {
+	pub player_movement: Option<Vec2>,
+}
+
 
 pub enum PlayerMovement {
 	Input,
@@ -108,7 +109,7 @@ fn get_movement(control: GameControl, input: &Res<Input<KeyCode>>) -> f32 {
 fn spawn_player(mut commands: Commands, textures: Res<TextureAssets>) {
 	commands
 		.spawn(SpriteBundle {
-			texture: textures.logo.clone(),
+			texture: textures.crab.clone(),
 			transform: Transform::from_translation(Vec3::new(0., 0., 1.)),
 			..Default::default()
 		})
@@ -123,13 +124,14 @@ fn move_player(
 	if actions.player_movement.is_none() {
 		return;
 	}
-	let speed = 150.;
+	let speed = 150.0;
 	let movement = Vec3::new(
 		actions.player_movement.unwrap().x * speed * time.delta_seconds(),
 		actions.player_movement.unwrap().y * speed * time.delta_seconds(),
 		0.,
 	);
 	for mut player_transform in &mut player_query {
+		println!("Movement: {:?}", movement);
 		player_transform.translation += movement;
 	}
 }

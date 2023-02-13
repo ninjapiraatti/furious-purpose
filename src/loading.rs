@@ -47,8 +47,8 @@ pub struct ImageAssets {
 
 #[derive(AssetCollection, Resource)]
 pub struct TextureAssets {
-	#[asset(path = "logo.png")]
-	pub logo: Handle<Image>,
+	#[asset(path = "crab.png")]
+	pub crab: Handle<Image>,
 }
 
 fn log_loading_done() {

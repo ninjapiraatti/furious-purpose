@@ -72,8 +72,10 @@ pub fn game_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 				.spawn(
 					ButtonBundle {
 					style: Style {
-						size: Size::new(Val::Px(350.0), Val::Px(365.0)),
+						size: Size::new(Val::Px(100.0), Val::Px(50.0)),
 						// horizontally center child text
+						position_type: PositionType::Absolute,
+						position: UiRect { left: Val::Px(10.0), top: Val::Px(10.0), ..default()},
 						justify_content: JustifyContent::Center,
 						// vertically center child text
 						align_items: AlignItems::Center,
