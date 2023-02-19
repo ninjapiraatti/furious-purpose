@@ -7,6 +7,9 @@ use super::{despawn_screen};
 
 pub struct GamePlugin;
 
+const ARENA_WIDTH: u32 = 100;
+const ARENA_HEIGHT: u32 = 100;
+
 const NORMAL_BUTTON: Color = Color::rgb(0.65, 0.15, 0.15);
 const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.95, 0.25);
 const PRESSED_BUTTON: Color = Color::rgb(0.95, 0.75, 0.15);
@@ -17,13 +20,35 @@ impl Plugin for GamePlugin {
 			// When entering the state, spawn everything needed for this screen
 			.add_system_set(SystemSet::on_enter(state::AppState::Game).with_system(game_setup))
 			.add_system_set(SystemSet::on_exit(state::AppState::Game).with_system(despawn_screen::<OnGame>))
-			.add_system_set(SystemSet::on_update(state::AppState::Game).with_system(test_system));
+			.add_system_set(SystemSet::on_update(state::AppState::Game).with_system(test_system))
+			.add_system_set(SystemSet::on_update(state::AppState::Game).with_system(position_translation));
 	}
 }
 
 // Tag component used to tag entities added on the splash screen
 #[derive(Component)]
 struct OnGame;
+
+#[derive(Component, Debug)]
+pub struct Position {
+	pub x: i32,
+	pub y: i32,
+}
+
+fn position_translation(windows: Res<Windows>, mut q: Query<(&Position, &mut Transform)>) {
+    fn convert(pos: f32, bound_window: f32, bound_game: f32) -> f32 {
+        let tile_size = bound_window / bound_game;
+        pos / bound_game * bound_window - (bound_window / 2.) + (tile_size / 2.)
+    }
+    let window = windows.get_primary().unwrap();
+    for (pos, mut transform) in q.iter_mut() {
+        transform.translation = Vec3::new(
+            convert(pos.x as f32, window.width() as f32, ARENA_WIDTH as f32),
+            convert(pos.y as f32, window.height() as f32, ARENA_HEIGHT as f32),
+            0.0,
+        );
+    }
+}
 
 pub fn test_system(
 	mut interaction_query: Query<

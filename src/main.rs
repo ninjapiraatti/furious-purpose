@@ -1,8 +1,7 @@
 use bevy::{
 	prelude::*,
 	ecs::schedule::ReportExecutionOrderAmbiguities,
-	winit::WinitSettings,
-	window::{CursorGrabMode, PresentMode},
+	window::{PresentMode},
 };
 use bevy_asset_loader::{
 	prelude::*,
@@ -18,11 +17,6 @@ fn print_position_system(query: Query<&Transform>) {
 	for transform in query.iter() {
 		println!("position: {:?}", transform.translation);
 	}
-}
-
-struct Position {
-	x: i32,
-	y: i32,
 }
 
 struct GameRules {
@@ -50,19 +44,14 @@ fn main() {
 		}))
 		.insert_resource(ClearColor(Color::rgb(0.1, 0.1, 0.1)))
 		.add_system(toggle_vsync)
-		//.insert_resource(WinitSettings::desktop_app())
 		.insert_resource(ReportExecutionOrderAmbiguities)
-		//.init_resource::<state::InGameState>()
 		.add_state(state::AppState::Loading)
 		.add_plugin(loading::LoadingPlugin)
 		.add_startup_system(setup)
-		//.add_plugins(DefaultPlugins)
-		//.add_plugin(player::HelloPlugin)
 		.add_plugin(splash::SplashPlugin)
 		.add_plugin(mainmenu::MainMenuPlugin)
 		.add_plugin(game::GamePlugin)
 		.add_plugin(player::PlayerPlugin)
-		//.add_system(player::lol)
 		.run();
 }
 
