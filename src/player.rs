@@ -84,10 +84,10 @@ fn player_movement_input(
 	//mut game_state: ResMut<State<state::AppState>>,
 ) {
     if let Some(mut head) = heads.iter_mut().next() {
-        let dir: Direction = if keyboard_input.pressed(KeyCode::Left) {
+        let dir: Direction = if keyboard_input.just_pressed(KeyCode::Left) {
 			println!("Turned left");
             Direction::turn_left(head.direction)
-        } else if keyboard_input.pressed(KeyCode::Right) {
+        } else if keyboard_input.just_pressed(KeyCode::Right) {
 			println!("Turned right");
             Direction::turn_right(head.direction)
         } else {

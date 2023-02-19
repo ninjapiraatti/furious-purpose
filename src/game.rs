@@ -7,8 +7,8 @@ use super::{despawn_screen};
 
 pub struct GamePlugin;
 
-const ARENA_WIDTH: u32 = 100;
-const ARENA_HEIGHT: u32 = 100;
+const ARENA_WIDTH: u32 = 1200;
+const ARENA_HEIGHT: u32 = 800;
 
 const NORMAL_BUTTON: Color = Color::rgb(0.65, 0.15, 0.15);
 const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.95, 0.25);
