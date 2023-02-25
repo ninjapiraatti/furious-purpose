@@ -185,7 +185,6 @@ fn grow_player_tails(
 	//println!("head_positions: {:?}", head_positions);
 	segments.0.push(spawn_segment( // This would add the tail always to the same player
 		commands,
-		//head_positions.single().unwrap().clone().into(),
 		head_positions.single().clone()
 	));
 }
@@ -197,8 +196,8 @@ fn spawn_segment(
 	commands
 		.spawn(SpriteBundle {
 			sprite: Sprite {
-				color: Color::rgb(0.25, 0.25, 0.75),
-				custom_size: Some(Vec2::new(5.0, 5.0)),
+				color: Color::rgb(0.99, 0.45, 0.0),
+				custom_size: Some(Vec2::new(3.0, 3.0)),
 				..default()
 			},
         	..default()
