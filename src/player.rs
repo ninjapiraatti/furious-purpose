@@ -3,7 +3,7 @@ use bevy::{
 	prelude::{Input, KeyCode, Res},
 };
 
-use crate::{state, game::Position, loading::TextureAssets};
+use crate::{state, game, loading};
 use super::{despawn_screen};
 
 pub struct PlayerPlugin;
@@ -48,7 +48,11 @@ impl Direction {
 	}
 }
 
+#[derive(Component, Debug)]
 struct PlayerSegment;
+
+#[derive(Resource, Default)]
+pub struct PlayerSegments(Vec<Entity>);
 
 /*
 #[derive(Default, Resource)]
@@ -73,7 +77,8 @@ impl Plugin for PlayerPlugin {
 			//.init_resource::<Actions>().add_system_set(SystemSet::on_update(state::AppState::Game).with_system(set_movement_actions))
 			.add_system_set(SystemSet::on_enter(state::AppState::Game).with_system(spawn_player))
 			.add_system_set(SystemSet::on_update(state::AppState::Game).with_system(player_movement_input))
-			.add_system_set(SystemSet::on_update(state::AppState::Game).with_system(move_players));
+			.add_system_set(SystemSet::on_update(state::AppState::Game).with_system(move_players))
+			.add_system_set(SystemSet::on_update(state::AppState::Game).with_system(grow_player_tails));
 	}
 }
 
@@ -83,19 +88,18 @@ fn player_movement_input(
 	mut heads: Query<&mut PlayerHead>,
 	//mut game_state: ResMut<State<state::AppState>>,
 ) {
-    if let Some(mut head) = heads.iter_mut().next() {
-        let dir: Direction = if keyboard_input.just_pressed(KeyCode::Left) {
+	if let Some(mut head) = heads.iter_mut().next() {
+		let dir: Direction = if keyboard_input.just_pressed(KeyCode::Left) {
 			println!("Turned left");
-            Direction::turn_left(head.direction)
-        } else if keyboard_input.just_pressed(KeyCode::Right) {
+			Direction::turn_left(head.direction)
+		} else if keyboard_input.just_pressed(KeyCode::Right) {
 			println!("Turned right");
-            Direction::turn_right(head.direction)
-        } else {
+			Direction::turn_right(head.direction)
+		} else {
 			head.direction
 		};
 		head.direction = dir;
-
-    }
+	}
 }
 
 /*
@@ -115,7 +119,7 @@ fn set_movement_actions(mut actions: ResMut<Actions>, keyboard_input: Res<Input<
 }
 */
 
-fn spawn_player(mut commands: Commands, textures: Res<TextureAssets>) {
+fn spawn_player(mut commands: Commands, textures: Res<loading::TextureAssets>) {
 	commands
 		.spawn(SpriteBundle {
 			texture: textures.crab.clone(),
@@ -131,9 +135,9 @@ fn spawn_player(mut commands: Commands, textures: Res<TextureAssets>) {
 		.insert(PlayerHead {
 			direction: Direction::Up,
 		})
-		.insert(Position {
-			x: 10,
-			y: 10,
+		.insert(game::Position {
+			x: 100,
+			y: 100,
 		})
 		.insert(Player{name: "ninjapiraatti".to_string()});
 }
@@ -141,25 +145,65 @@ fn spawn_player(mut commands: Commands, textures: Res<TextureAssets>) {
 fn move_players(
 	mut heads: Query<(Entity, &PlayerHead)>,
 	//mut players: Query<(Entity, &Player)>,
-	mut positions: Query<&mut Position>,
+	mut positions: Query<&mut game::Position>,
 	mut positions2: Query<&mut Transform, With<Player>>,
 ) {
 	if let Some((head_entity, head)) = heads.iter_mut().next() {
 		let mut head_pos = positions.get_mut(head_entity).unwrap();
 		println!("head pos: {:?}", head_pos);
+		if head_pos.x < 0
+			|| head_pos.y < 0
+			|| head_pos.x as u32 >= game::ARENA_WIDTH
+			|| head_pos.y as u32 >= game::ARENA_HEIGHT
+		{
+			println!("GAME OVER");
+		}
 		match &head.direction {
-            Direction::Left => {
-                head_pos.x += -1;
-            }
-            Direction::Right => {
-                head_pos.x += 1;
-            }
-            Direction::Up => {
-                head_pos.y += 1;
-            }
-            Direction::Down => {
-                head_pos.y -= 1;
-            }
-        };
+			Direction::Left => {
+				head_pos.x += -1;
+			}
+			Direction::Right => {
+				head_pos.x += 1;
+			}
+			Direction::Up => {
+				head_pos.y += 1;
+			}
+			Direction::Down => {
+				head_pos.y -= 1;
+			}
+		}
+
 	}
+}
+
+fn grow_player_tails(
+	commands: Commands,
+	head_positions: Query<&game::Position, With<PlayerHead>>,
+	mut segments: ResMut<PlayerSegments>,
+	//materials: Res<loading::Materials>,
+) {
+	//println!("head_positions: {:?}", head_positions);
+	segments.0.push(spawn_segment( // This would add the tail always to the same player
+		commands,
+		//head_positions.single().unwrap().clone().into(),
+		head_positions.single().clone()
+	));
+}
+
+fn spawn_segment(
+	mut commands: Commands,
+	position: game::Position,
+) -> Entity {
+	commands
+		.spawn(SpriteBundle {
+			sprite: Sprite {
+				color: Color::rgb(0.25, 0.25, 0.75),
+				custom_size: Some(Vec2::new(5.0, 5.0)),
+				..default()
+			},
+        	..default()
+		})
+		.insert(PlayerSegment)
+		.insert(position)
+		.id()
 }

@@ -28,9 +28,10 @@ impl Plugin for LoadingPlugin {
 	}
 }
 
+#[derive(Resource)]
 pub struct Materials {
-	head_material: Handle<ColorMaterial>,
-	segment_material: Handle<ColorMaterial>,
+	pub head_material: Handle<ColorMaterial>,
+	pub segment_material: Handle<ColorMaterial>,
 }
 
 #[derive(AssetCollection, Resource)]
