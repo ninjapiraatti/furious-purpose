@@ -46,7 +46,7 @@ pub struct ImageAssets {
 	pub logo: Handle<Image>,
 }
 
-#[derive(AssetCollection, Resource)]
+#[derive(AssetCollection, Resource, Clone)]
 pub struct TextureAssets {
 	#[asset(path = "crab.png")]
 	pub crab: Handle<Image>,
