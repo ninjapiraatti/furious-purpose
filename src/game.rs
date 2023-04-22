@@ -29,7 +29,7 @@ impl Plugin for GamePlugin {
 #[derive(Component)]
 struct OnGame;
 
-#[derive(Component, Copy, Clone, Debug)]
+#[derive(Component, Copy, Clone, Debug, PartialEq)]
 pub struct Position {
 	pub x: i32,
 	pub y: i32,

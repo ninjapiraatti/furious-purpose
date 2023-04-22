@@ -142,13 +142,20 @@ fn spawn_player(mut commands: Commands, textures: Res<loading::TextureAssets>) {
 		.insert(Player{name: "ninjapiraatti".to_string()});
 }
 
+
 fn move_players(
+	mut segments: ResMut<PlayerSegments>,
 	mut heads: Query<(Entity, &PlayerHead)>,
 	//mut players: Query<(Entity, &Player)>,
 	mut positions: Query<&mut game::Position>,
 	mut positions2: Query<&mut Transform, With<Player>>,
 ) {
 	if let Some((head_entity, head)) = heads.iter_mut().next() {
+		let segment_positions = segments
+			.0
+			.iter()
+			.map(|e| *positions.get_mut(*e).unwrap())
+			.collect::<Vec<game::Position>>();
 		let mut head_pos = positions.get_mut(head_entity).unwrap();
 		println!("head pos: {:?}", head_pos);
 		if head_pos.x < 0
@@ -172,7 +179,9 @@ fn move_players(
 				head_pos.y -= 1;
 			}
 		}
-
+		if segment_positions.contains(&head_pos) {
+			println!("GAME OVER");
+		}
 	}
 }
 
