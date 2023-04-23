@@ -6,12 +6,14 @@ use bevy::{
 use crate::{state, game, loading};
 use super::{despawn_screen};
 use std::collections::HashMap;
+use rand::{thread_rng, Rng};
 
 pub struct PlayerPlugin;
 
 #[derive(Component, Debug, Clone)]
 struct Player {
 	name: String,
+	alive: bool,
 }
 
 #[derive(Component, Debug)]
@@ -79,9 +81,14 @@ impl Plugin for PlayerPlugin {
 fn player_movement_input(
     keyboard_input: Res<Input<KeyCode>>,
     mut heads: Query<(&mut PlayerHead, &Player)>,
+	mut commands: Commands,
+	textures: Res<loading::TextureAssets>,
 ) {
+	let mut rng = rand::thread_rng();
     for (mut head, player) in heads.iter_mut() {
+		let mut should_spawn = false;
         let dir: Direction = if player.name == "Cookie Crab" {
+			should_spawn = keyboard_input.just_pressed(KeyCode::Q) || keyboard_input.just_pressed(KeyCode::W);
             if keyboard_input.just_pressed(KeyCode::Q) {
                 Direction::turn_left(head.direction)
             } else if keyboard_input.just_pressed(KeyCode::W) {
@@ -90,6 +97,7 @@ fn player_movement_input(
                 head.direction
             }
         } else if player.name == "Sid Starfish" {
+			should_spawn = keyboard_input.just_pressed(KeyCode::B) || keyboard_input.just_pressed(KeyCode::N);
             if keyboard_input.just_pressed(KeyCode::B) {
                 Direction::turn_left(head.direction)
             } else if keyboard_input.just_pressed(KeyCode::N) {
@@ -98,6 +106,7 @@ fn player_movement_input(
                 head.direction
             }
 		} else if player.name == "Foo Frog" {
+			should_spawn = keyboard_input.just_pressed(KeyCode::O) || keyboard_input.just_pressed(KeyCode::P);
             if keyboard_input.just_pressed(KeyCode::O) {
                 Direction::turn_left(head.direction)
             } else if keyboard_input.just_pressed(KeyCode::P) {
@@ -106,6 +115,7 @@ fn player_movement_input(
                 head.direction
             }
 		} else if player.name == "Jabby Jellyfish" {
+			should_spawn = keyboard_input.just_pressed(KeyCode::Left) || keyboard_input.just_pressed(KeyCode::Right);
             if keyboard_input.just_pressed(KeyCode::Left) {
                 Direction::turn_left(head.direction)
             } else if keyboard_input.just_pressed(KeyCode::Right) {
@@ -116,11 +126,18 @@ fn player_movement_input(
         } else {
             head.direction
         };
+		// Spawn the player if their respective key has been pressed
+        if should_spawn && player.alive == false{
+            let start_position = game::Position {
+                x: rng.gen_range(100..1100), // Generate random x position between 0 and 1200
+                y: rng.gen_range(100..700),  // Generate random y position between 0 and 800
+            };
+            spawn_player(&mut commands, &textures, &player.name, start_position, head.direction);
+        }
 		//println!("Player: {:?}, dir: {:?}", player.name, dir);
         head.direction = dir;
     }
 }
-
 
 fn spawn_players(mut commands: Commands, textures: Res<loading::TextureAssets>) {
 	let player1_start_position = game::Position { x: 600, y: 450 };
@@ -160,7 +177,7 @@ fn spawn_player(
 			direction: direction,
 		})
 		.insert(start_position)
-		.insert(Player{name: player_name.to_string()});
+		.insert(Player{name: player_name.to_string(), alive: true});
 }
 
 
@@ -177,14 +194,14 @@ fn get_all_positions(segments: &PlayerSegments, positions: &Query<&mut game::Pos
 
 fn move_players(
 	mut segments: ResMut<PlayerSegments>,
-	mut heads: Query<(Entity, &PlayerHead, &Player)>,
+	mut heads: Query<(Entity, &PlayerHead, &mut Player)>,
 	mut positions: Query<&mut game::Position>,
 	mut commands: Commands,
 	textures: Res<loading::TextureAssets>,
 ) {
 	let segment_positions = get_all_positions(&segments, &positions);
 	let mut game_over_players = Vec::new();
-	for (head_entity, head, player) in heads.iter_mut() {
+	for (head_entity, head, mut player) in heads.iter_mut() {
 		let mut head_pos = positions.get_mut(head_entity).unwrap();
 		//println!("head pos: {:?}", head_pos);
 		match head.direction {
@@ -208,6 +225,7 @@ fn move_players(
 			|| segment_positions.contains(&head_pos)
 		{
 			game_over_players.push(player.name.clone());
+			player.alive = false;
 			continue;
 		}
 	}
@@ -231,8 +249,6 @@ fn move_players(
 		{
 			commands.entity(head_entity).despawn();
 		}
-		let start_position = game::Position { x: 600, y: 400 };
-		spawn_player(&mut commands, &textures, player_name, start_position, Direction::Right);
 	}
 }
 
@@ -244,7 +260,9 @@ fn grow_player_tails(
 ) {
 	for (head_position, player) in head_positions.iter() {
 		let player_segments = segments.0.entry(player.name.clone()).or_insert_with(Vec::new);
-		player_segments.push(spawn_segment(&mut commands, head_position.clone(), player.clone()));
+		if player.alive == true {
+			player_segments.push(spawn_segment(&mut commands, head_position.clone(), player.clone()));
+		}
 	}
 }
 
