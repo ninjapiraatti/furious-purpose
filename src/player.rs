@@ -53,7 +53,6 @@ impl Direction {
 struct PlayerSegment;
 
 #[derive(Resource, Default)]
-//pub struct PlayerSegments(Vec<Entity>);
 pub struct PlayerSegments(pub HashMap<String, Vec<Entity>>);
 
 
@@ -77,25 +76,34 @@ impl Plugin for PlayerPlugin {
 	}
 }
 
-// Move player
 fn player_movement_input(
-	keyboard_input: Res<Input<KeyCode>>,
-	mut heads: Query<&mut PlayerHead>,
-	//mut game_state: ResMut<State<state::AppState>>,
+    keyboard_input: Res<Input<KeyCode>>,
+    mut heads: Query<(&mut PlayerHead, &Player)>,
 ) {
-	if let Some(mut head) = heads.iter_mut().next() {
-		let dir: Direction = if keyboard_input.just_pressed(KeyCode::Left) {
-			println!("Turned left");
-			Direction::turn_left(head.direction)
-		} else if keyboard_input.just_pressed(KeyCode::Right) {
-			println!("Turned right");
-			Direction::turn_right(head.direction)
-		} else {
-			head.direction
-		};
-		head.direction = dir;
-	}
+    for (mut head, player) in heads.iter_mut() {
+        let dir: Direction = if player.name == "ninjapiraatti" {
+            if keyboard_input.just_pressed(KeyCode::A) {
+                Direction::turn_left(head.direction)
+            } else if keyboard_input.just_pressed(KeyCode::D) {
+                Direction::turn_right(head.direction)
+            } else {
+                head.direction
+            }
+        } else if player.name == "player2" {
+            if keyboard_input.just_pressed(KeyCode::Left) {
+                Direction::turn_left(head.direction)
+            } else if keyboard_input.just_pressed(KeyCode::Right) {
+                Direction::turn_right(head.direction)
+            } else {
+                head.direction
+            }
+        } else {
+            head.direction
+        };
+        head.direction = dir;
+    }
 }
+
 
 fn spawn_players(mut commands: Commands, textures: Res<loading::TextureAssets>) {
 	let player1_start_position = game::Position { x: 100, y: 100 };
@@ -126,49 +134,6 @@ fn spawn_player(
 		.insert(Player{name: player_name.to_string()});
 }
 
-/*
-fn move_players(
-	mut segments: ResMut<PlayerSegments>,
-	mut heads: Query<(Entity, &PlayerHead)>,
-	//mut players: Query<(Entity, &Player)>,
-	mut positions: Query<&mut game::Position>,
-	mut positions2: Query<&mut Transform, With<Player>>,
-) {
-	if let Some((head_entity, head)) = heads.iter_mut().next() {
-		let segment_positions = segments
-			.0
-			.iter()
-			.map(|e| *positions.get_mut(*e).unwrap())
-			.collect::<Vec<game::Position>>();
-		let mut head_pos = positions.get_mut(head_entity).unwrap();
-		println!("head pos: {:?}", head_pos);
-		if head_pos.x < 0
-			|| head_pos.y < 0
-			|| head_pos.x as u32 >= game::ARENA_WIDTH
-			|| head_pos.y as u32 >= game::ARENA_HEIGHT
-		{
-			println!("GAME OVER");
-		}
-		match &head.direction {
-			Direction::Left => {
-				head_pos.x += -1;
-			}
-			Direction::Right => {
-				head_pos.x += 1;
-			}
-			Direction::Up => {
-				head_pos.y += 1;
-			}
-			Direction::Down => {
-				head_pos.y -= 1;
-			}
-		}
-		if segment_positions.contains(&head_pos) {
-			println!("GAME OVER");
-		}
-	}
-}
-*/
 
 fn get_all_positions(segments: &PlayerSegments, positions: &Query<&mut game::Position>) -> Vec<game::Position> {
 	segments.0
@@ -185,19 +150,14 @@ fn move_players(
 	mut segments: ResMut<PlayerSegments>,
 	mut heads: Query<(Entity, &PlayerHead, &Player)>,
 	mut positions: Query<&mut game::Position>,
+	mut commands: Commands,
+	textures: Res<loading::TextureAssets>,
 ) {
 	let segment_positions = get_all_positions(&segments, &positions);
+	let mut game_over_players = Vec::new();
 	for (head_entity, head, player) in heads.iter_mut() {
-		//println!("FOUND {:?}{:?}", segment_entities, player.name);
 		let mut head_pos = positions.get_mut(head_entity).unwrap();
-		println!("head pos: {:?}", head_pos);
-		if head_pos.x < 0
-			|| head_pos.y < 0
-			|| head_pos.x as u32 >= game::ARENA_WIDTH
-			|| head_pos.y as u32 >= game::ARENA_HEIGHT
-		{
-			println!("GAME OVER");
-		}
+		//println!("head pos: {:?}", head_pos);
 		match head.direction {
 			Direction::Left => {
 				head_pos.x += -1;
@@ -212,20 +172,47 @@ fn move_players(
 				head_pos.y -= 1;
 			}
 		}
-		if segment_positions.contains(&head_pos) {
-			println!("GAME OVER");
+		if head_pos.x < 0
+			|| head_pos.y < 0
+			|| head_pos.x as u32 >= game::ARENA_WIDTH
+			|| head_pos.y as u32 >= game::ARENA_HEIGHT
+			|| segment_positions.contains(&head_pos)
+		{
+			game_over_players.push(player.name.clone());
+			continue;
 		}
 	}
+
+	for player_name in &game_over_players {
+		if let Some(player_segments) = segments.0.remove(player_name) {
+			for segment in player_segments {
+				commands.entity(segment).despawn();
+			}
+		}
+
+		if let Some(head_entity) = heads
+			.iter()
+			.find_map(|(entity, _, player)| {
+				if player.name == *player_name {
+					Some(entity)
+				} else {
+					None
+				}
+			})
+		{
+			commands.entity(head_entity).despawn();
+		}
+		let start_position = game::Position { x: 100, y: 100 };
+		spawn_player(&mut commands, &textures, player_name, start_position);
+	}
 }
+
 
 fn grow_player_tails(
 	mut commands: Commands,
 	head_positions: Query<(&game::Position, &Player), With<PlayerHead>>,
-	//head_positions: Query<&game::Position, With<PlayerHead>>,
 	mut segments: ResMut<PlayerSegments>,
-	//materials: Res<loading::Materials>,
 ) {
-	//println!("head_positions: {:?}", head_positions);
 	for (head_position, player) in head_positions.iter() {
 		let player_segments = segments.0.entry(player.name.clone()).or_insert_with(Vec::new);
 		player_segments.push(spawn_segment(&mut commands, head_position.clone(), player.clone()));
@@ -246,12 +233,6 @@ fn spawn_segment(
 			},
         	..default()
 		})
-		/*
-		.insert(PlayerSegment{
-			name: player_name.to_string()
-			position: position
-		)
-		*/
 		.insert(position)
 		.insert(player)
 		.id()
