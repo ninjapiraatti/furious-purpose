@@ -50,6 +50,12 @@ pub struct ImageAssets {
 pub struct TextureAssets {
 	#[asset(path = "crab.png")]
 	pub crab: Handle<Image>,
+	#[asset(path = "starfish.png")]
+	pub starfish: Handle<Image>,
+	#[asset(path = "frog.png")]
+	pub frog: Handle<Image>,
+	#[asset(path = "jellyfish.png")]
+	pub jellyfish: Handle<Image>,
 }
 
 fn log_loading_done() {

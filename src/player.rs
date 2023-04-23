@@ -81,15 +81,31 @@ fn player_movement_input(
     mut heads: Query<(&mut PlayerHead, &Player)>,
 ) {
     for (mut head, player) in heads.iter_mut() {
-        let dir: Direction = if player.name == "ninjapiraatti" {
-            if keyboard_input.just_pressed(KeyCode::A) {
+        let dir: Direction = if player.name == "Cookie Crab" {
+            if keyboard_input.just_pressed(KeyCode::Q) {
                 Direction::turn_left(head.direction)
-            } else if keyboard_input.just_pressed(KeyCode::D) {
+            } else if keyboard_input.just_pressed(KeyCode::W) {
                 Direction::turn_right(head.direction)
             } else {
                 head.direction
             }
-        } else if player.name == "player2" {
+        } else if player.name == "Sid Starfish" {
+            if keyboard_input.just_pressed(KeyCode::B) {
+                Direction::turn_left(head.direction)
+            } else if keyboard_input.just_pressed(KeyCode::N) {
+                Direction::turn_right(head.direction)
+            } else {
+                head.direction
+            }
+		} else if player.name == "Foo Frog" {
+            if keyboard_input.just_pressed(KeyCode::O) {
+                Direction::turn_left(head.direction)
+            } else if keyboard_input.just_pressed(KeyCode::P) {
+                Direction::turn_right(head.direction)
+            } else {
+                head.direction
+            }
+		} else if player.name == "Jabby Jellyfish" {
             if keyboard_input.just_pressed(KeyCode::Left) {
                 Direction::turn_left(head.direction)
             } else if keyboard_input.just_pressed(KeyCode::Right) {
@@ -100,17 +116,22 @@ fn player_movement_input(
         } else {
             head.direction
         };
+		//println!("Player: {:?}, dir: {:?}", player.name, dir);
         head.direction = dir;
     }
 }
 
 
 fn spawn_players(mut commands: Commands, textures: Res<loading::TextureAssets>) {
-	let player1_start_position = game::Position { x: 100, y: 100 };
-	let player2_start_position = game::Position { x: 200, y: 200 };
+	let player1_start_position = game::Position { x: 600, y: 450 };
+	let player2_start_position = game::Position { x: 650, y: 400 };
+	let player3_start_position = game::Position { x: 600, y: 350 };
+	let player4_start_position = game::Position { x: 550, y: 400 };
 
-	spawn_player(&mut commands, &textures, "ninjapiraatti", player1_start_position);
-	spawn_player(&mut commands, &textures, "player2", player2_start_position);
+	spawn_player(&mut commands, &textures, "Cookie Crab", player1_start_position, Direction::Up);
+	spawn_player(&mut commands, &textures, "Sid Starfish", player2_start_position, Direction::Right);
+	spawn_player(&mut commands, &textures, "Foo Frog", player3_start_position, Direction::Down);
+	spawn_player(&mut commands, &textures, "Jabby Jellyfish", player4_start_position, Direction::Left);
 }
 
 
@@ -119,16 +140,24 @@ fn spawn_player(
 	textures: &Res<loading::TextureAssets>,
 	player_name: &str,
 	start_position: game::Position,
+	direction: Direction,
 ) {
-	println!("{:?}", player_name);
+	println!("SPAWNING: {:?}", player_name);
+	let texture = match player_name {
+        "Cookie Crab" => textures.crab.clone(),
+        "Sid Starfish" => textures.starfish.clone(),
+        "Foo Frog" => textures.frog.clone(),
+        "Jabby Jellyfish" => textures.jellyfish.clone(),
+        _ => textures.crab.clone()
+    };
 	commands
 		.spawn(SpriteBundle {
-			texture: textures.crab.clone(),
+			texture: texture,
 			transform: Transform::from_translation(Vec3::new(0., 0., 1.)),
 			..Default::default()
 		})
 		.insert(PlayerHead {
-			direction: Direction::Up,
+			direction: direction,
 		})
 		.insert(start_position)
 		.insert(Player{name: player_name.to_string()});
@@ -202,8 +231,8 @@ fn move_players(
 		{
 			commands.entity(head_entity).despawn();
 		}
-		let start_position = game::Position { x: 100, y: 100 };
-		spawn_player(&mut commands, &textures, player_name, start_position);
+		let start_position = game::Position { x: 600, y: 400 };
+		spawn_player(&mut commands, &textures, player_name, start_position, Direction::Right);
 	}
 }
 
@@ -224,10 +253,17 @@ fn spawn_segment(
 	position: game::Position,
 	player: Player,
 ) -> Entity {
+	let color = match &player.name as &str{
+        "Cookie Crab" => Color::rgb(0.99, 0.45, 0.0),
+        "Sid Starfish" => Color::rgb(0.99, 0.25, 0.20),
+        "Foo Frog" => Color::rgb(0.5, 0.95, 0.3),
+        "Jabby Jellyfish" => Color::rgb(0.3, 0.75, 0.99),
+        _ => Color::rgb(0.45, 0.0, 0.99), // Default color
+    };
 	commands
 		.spawn(SpriteBundle {
 			sprite: Sprite {
-				color: Color::rgb(0.99, 0.45, 0.0),
+				color: color,
 				custom_size: Some(Vec2::new(3.0, 3.0)),
 				..default()
 			},
