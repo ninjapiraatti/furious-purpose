@@ -43,6 +43,7 @@ fn main() {
 			..default()
 		}))
 		.insert_resource(ClearColor(Color::rgb(0.1, 0.1, 0.1)))
+		.insert_resource(state::InGameState::default())
 		.insert_resource(player::PlayerSegments::default())
 		.add_system(toggle_vsync)
 		.insert_resource(ReportExecutionOrderAmbiguities)

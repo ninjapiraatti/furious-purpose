@@ -13,7 +13,6 @@ pub struct PlayerPlugin;
 #[derive(Component, Debug, Clone)]
 struct Player {
 	name: String,
-	alive: bool,
 }
 
 #[derive(Component, Debug)]
@@ -71,102 +70,111 @@ impl Plugin for PlayerPlugin {
 	fn build(&self, app: &mut App) {
 		app
 			//.init_resource::<Actions>().add_system_set(SystemSet::on_update(state::AppState::Game).with_system(set_movement_actions))
-			.add_system_set(SystemSet::on_enter(state::AppState::Game).with_system(spawn_players))
+			.add_system_set(SystemSet::on_update(state::AppState::Game).with_system(player_spawn_input))
 			.add_system_set(SystemSet::on_update(state::AppState::Game).with_system(player_movement_input))
 			.add_system_set(SystemSet::on_update(state::AppState::Game).with_system(move_players))
 			.add_system_set(SystemSet::on_update(state::AppState::Game).with_system(grow_player_tails));
 	}
 }
 
-fn player_movement_input(
-    keyboard_input: Res<Input<KeyCode>>,
-    mut heads: Query<(&mut PlayerHead, &Player)>,
+fn player_spawn_input(
+	keyboard_input: Res<Input<KeyCode>>,
+	mut in_game_state: ResMut<state::InGameState>,
+	mut players: Query<(&Player)>,
 	mut commands: Commands,
 	textures: Res<loading::TextureAssets>,
 ) {
 	let mut rng = rand::thread_rng();
-    for (mut head, player) in heads.iter_mut() {
-		let mut should_spawn = false;
-        let dir: Direction = if player.name == "Cookie Crab" {
-			should_spawn = keyboard_input.just_pressed(KeyCode::Q) || keyboard_input.just_pressed(KeyCode::W);
-            if keyboard_input.just_pressed(KeyCode::Q) {
-                Direction::turn_left(head.direction)
-            } else if keyboard_input.just_pressed(KeyCode::W) {
-                Direction::turn_right(head.direction)
-            } else {
-                head.direction
-            }
-        } else if player.name == "Sid Starfish" {
-			should_spawn = keyboard_input.just_pressed(KeyCode::B) || keyboard_input.just_pressed(KeyCode::N);
-            if keyboard_input.just_pressed(KeyCode::B) {
-                Direction::turn_left(head.direction)
-            } else if keyboard_input.just_pressed(KeyCode::N) {
-                Direction::turn_right(head.direction)
-            } else {
-                head.direction
-            }
-		} else if player.name == "Foo Frog" {
-			should_spawn = keyboard_input.just_pressed(KeyCode::O) || keyboard_input.just_pressed(KeyCode::P);
-            if keyboard_input.just_pressed(KeyCode::O) {
-                Direction::turn_left(head.direction)
-            } else if keyboard_input.just_pressed(KeyCode::P) {
-                Direction::turn_right(head.direction)
-            } else {
-                head.direction
-            }
-		} else if player.name == "Jabby Jellyfish" {
-			should_spawn = keyboard_input.just_pressed(KeyCode::Left) || keyboard_input.just_pressed(KeyCode::Right);
-            if keyboard_input.just_pressed(KeyCode::Left) {
-                Direction::turn_left(head.direction)
-            } else if keyboard_input.just_pressed(KeyCode::Right) {
-                Direction::turn_right(head.direction)
-            } else {
-                head.direction
-            }
-        } else {
-            head.direction
-        };
-		// Spawn the player if their respective key has been pressed
-        if should_spawn && player.alive == false{
-            let start_position = game::Position {
-                x: rng.gen_range(100..1100), // Generate random x position between 0 and 1200
-                y: rng.gen_range(100..700),  // Generate random y position between 0 and 800
-            };
-            spawn_player(&mut commands, &textures, &player.name, start_position, head.direction);
-        }
-		//println!("Player: {:?}, dir: {:?}", player.name, dir);
-        head.direction = dir;
-    }
+	if !in_game_state.player1 && keyboard_input.any_just_pressed([KeyCode::Q, KeyCode::W]) {
+		println!("SEEING INPUT");
+		let start_position = game::Position {
+			x: rng.gen_range(100..1100), // Generate random x position between 100 and 1100
+			y: rng.gen_range(100..700),  // Generate random y position between 100 and 700
+		};
+		spawn_player(&mut commands, in_game_state, &textures, "Cookie Crab", start_position, Direction::Down);
+	}
 }
 
-fn spawn_players(mut commands: Commands, textures: Res<loading::TextureAssets>) {
+fn player_movement_input(
+	keyboard_input: Res<Input<KeyCode>>,
+	mut heads: Query<(&mut PlayerHead, &Player)>,
+) {
+	for (mut head, player) in heads.iter_mut() {
+		let dir: Direction = if player.name == "Cookie Crab" {
+			if keyboard_input.just_pressed(KeyCode::Q) {
+				Direction::turn_left(head.direction)
+			} else if keyboard_input.just_pressed(KeyCode::W) {
+				Direction::turn_right(head.direction)
+			} else {
+				head.direction
+			}
+		} else if player.name == "Sid Starfish" {
+			if keyboard_input.just_pressed(KeyCode::B) {
+				Direction::turn_left(head.direction)
+			} else if keyboard_input.just_pressed(KeyCode::N) {
+				Direction::turn_right(head.direction)
+			} else {
+				head.direction
+			}
+		} else if player.name == "Foo Frog" {
+			if keyboard_input.just_pressed(KeyCode::O) {
+				Direction::turn_left(head.direction)
+			} else if keyboard_input.just_pressed(KeyCode::P) {
+				Direction::turn_right(head.direction)
+			} else {
+				head.direction
+			}
+		} else if player.name == "Jabby Jellyfish" {
+			if keyboard_input.just_pressed(KeyCode::Left) {
+				Direction::turn_left(head.direction)
+			} else if keyboard_input.just_pressed(KeyCode::Right) {
+				Direction::turn_right(head.direction)
+			} else {
+				head.direction
+			}
+		} else {
+				head.direction
+		};
+		head.direction = dir;
+	}
+}
+
+/*
+fn spawn_players(mut in_game_state: ResMut<state::InGameState>, mut commands: Commands, textures: Res<loading::TextureAssets>) {
+	in_game_state.player1 = true;
+	in_game_state.player2 = true;
+	in_game_state.player3 = true;
+	in_game_state.player4 = true;
 	let player1_start_position = game::Position { x: 600, y: 450 };
 	let player2_start_position = game::Position { x: 650, y: 400 };
 	let player3_start_position = game::Position { x: 600, y: 350 };
 	let player4_start_position = game::Position { x: 550, y: 400 };
 
-	spawn_player(&mut commands, &textures, "Cookie Crab", player1_start_position, Direction::Up);
-	spawn_player(&mut commands, &textures, "Sid Starfish", player2_start_position, Direction::Right);
-	spawn_player(&mut commands, &textures, "Foo Frog", player3_start_position, Direction::Down);
-	spawn_player(&mut commands, &textures, "Jabby Jellyfish", player4_start_position, Direction::Left);
+	spawn_player(&mut commands, in_game_state, &textures, "Cookie Crab", player1_start_position, Direction::Up);
+	spawn_player(&mut commands, in_game_state, &textures, "Sid Starfish", player2_start_position, Direction::Right);
+	spawn_player(&mut commands, in_game_state, &textures, "Foo Frog", player3_start_position, Direction::Down);
+	spawn_player(&mut commands, in_game_state, &textures, "Jabby Jellyfish", player4_start_position, Direction::Left);
 }
+*/
 
 
 fn spawn_player(
 	commands: &mut Commands,
+	mut in_game_state: ResMut<state::InGameState>,
 	textures: &Res<loading::TextureAssets>,
 	player_name: &str,
 	start_position: game::Position,
 	direction: Direction,
 ) {
 	println!("SPAWNING: {:?}", player_name);
+	in_game_state.player1 = true;
 	let texture = match player_name {
-        "Cookie Crab" => textures.crab.clone(),
-        "Sid Starfish" => textures.starfish.clone(),
-        "Foo Frog" => textures.frog.clone(),
-        "Jabby Jellyfish" => textures.jellyfish.clone(),
-        _ => textures.crab.clone()
-    };
+		"Cookie Crab" => textures.crab.clone(),
+		"Sid Starfish" => textures.starfish.clone(),
+		"Foo Frog" => textures.frog.clone(),
+		"Jabby Jellyfish" => textures.jellyfish.clone(),
+		_ => textures.crab.clone()
+	};
 	commands
 		.spawn(SpriteBundle {
 			texture: texture,
@@ -177,7 +185,7 @@ fn spawn_player(
 			direction: direction,
 		})
 		.insert(start_position)
-		.insert(Player{name: player_name.to_string(), alive: true});
+		.insert(Player{name: player_name.to_string()});
 }
 
 
@@ -196,6 +204,7 @@ fn move_players(
 	mut segments: ResMut<PlayerSegments>,
 	mut heads: Query<(Entity, &PlayerHead, &mut Player)>,
 	mut positions: Query<&mut game::Position>,
+	mut in_game_state: ResMut<state::InGameState>,
 	mut commands: Commands,
 	textures: Res<loading::TextureAssets>,
 ) {
@@ -225,7 +234,6 @@ fn move_players(
 			|| segment_positions.contains(&head_pos)
 		{
 			game_over_players.push(player.name.clone());
-			player.alive = false;
 			continue;
 		}
 	}
@@ -247,6 +255,7 @@ fn move_players(
 				}
 			})
 		{
+			in_game_state.player1 = false;
 			commands.entity(head_entity).despawn();
 		}
 	}
@@ -260,9 +269,7 @@ fn grow_player_tails(
 ) {
 	for (head_position, player) in head_positions.iter() {
 		let player_segments = segments.0.entry(player.name.clone()).or_insert_with(Vec::new);
-		if player.alive == true {
-			player_segments.push(spawn_segment(&mut commands, head_position.clone(), player.clone()));
-		}
+		player_segments.push(spawn_segment(&mut commands, head_position.clone(), player.clone()));
 	}
 }
 
@@ -272,12 +279,12 @@ fn spawn_segment(
 	player: Player,
 ) -> Entity {
 	let color = match &player.name as &str{
-        "Cookie Crab" => Color::rgb(0.99, 0.45, 0.0),
-        "Sid Starfish" => Color::rgb(0.99, 0.25, 0.20),
-        "Foo Frog" => Color::rgb(0.5, 0.95, 0.3),
-        "Jabby Jellyfish" => Color::rgb(0.3, 0.75, 0.99),
-        _ => Color::rgb(0.45, 0.0, 0.99), // Default color
-    };
+		"Cookie Crab" => Color::rgb(0.99, 0.45, 0.0),
+		"Sid Starfish" => Color::rgb(0.99, 0.25, 0.20),
+		"Foo Frog" => Color::rgb(0.5, 0.95, 0.3),
+		"Jabby Jellyfish" => Color::rgb(0.3, 0.75, 0.99),
+		_ => Color::rgb(0.45, 0.0, 0.99), // Default color
+	};
 	commands
 		.spawn(SpriteBundle {
 			sprite: Sprite {
@@ -285,7 +292,7 @@ fn spawn_segment(
 				custom_size: Some(Vec2::new(3.0, 3.0)),
 				..default()
 			},
-        	..default()
+					..default()
 		})
 		.insert(position)
 		.insert(player)
