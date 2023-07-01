@@ -86,12 +86,22 @@ fn player_spawn_input(
 ) {
 	let mut rng = rand::thread_rng();
 	if !in_game_state.player1 && keyboard_input.any_just_pressed([KeyCode::Q, KeyCode::W]) {
-		println!("SEEING INPUT");
+		println!("Spawn player 1");
 		let start_position = game::Position {
 			x: rng.gen_range(100..1100), // Generate random x position between 100 and 1100
 			y: rng.gen_range(100..700),  // Generate random y position between 100 and 700
 		};
-		spawn_player(&mut commands, in_game_state, &textures, "Cookie Crab", start_position, Direction::Down);
+		spawn_player(&mut commands, &textures, "Cookie Crab", start_position, Direction::Down);
+		in_game_state.player1 = true;
+	}
+	if !in_game_state.player2 && keyboard_input.any_just_pressed([KeyCode::B, KeyCode::N]) {
+		println!("Spawn player 2");
+		let start_position = game::Position {
+			x: rng.gen_range(100..1100), // Generate random x position between 100 and 1100
+			y: rng.gen_range(100..700),  // Generate random y position between 100 and 700
+		};
+		spawn_player(&mut commands, &textures, "Sid Starfish", start_position, Direction::Down);
+		in_game_state.player2 = true;
 	}
 }
 
@@ -160,14 +170,12 @@ fn spawn_players(mut in_game_state: ResMut<state::InGameState>, mut commands: Co
 
 fn spawn_player(
 	commands: &mut Commands,
-	mut in_game_state: ResMut<state::InGameState>,
 	textures: &Res<loading::TextureAssets>,
 	player_name: &str,
 	start_position: game::Position,
 	direction: Direction,
 ) {
 	println!("SPAWNING: {:?}", player_name);
-	in_game_state.player1 = true;
 	let texture = match player_name {
 		"Cookie Crab" => textures.crab.clone(),
 		"Sid Starfish" => textures.starfish.clone(),
@@ -255,7 +263,14 @@ fn move_players(
 				}
 			})
 		{
-			in_game_state.player1 = false;
+			match player_name.as_str() {
+				"Cookie Crab" => in_game_state.player1 = false,
+				"Sid Starfish" => in_game_state.player2 = false,
+				"Foo Frog" => in_game_state.player3 = false,
+				"Jabby Jellyfish" => in_game_state.player4 = false,
+				// Add here other player names if necessary
+				_ => (),
+			}
 			commands.entity(head_entity).despawn();
 		}
 	}
