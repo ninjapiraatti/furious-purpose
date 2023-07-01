@@ -2,7 +2,7 @@ use bevy::{
 	prelude::*,
 };
 
-use crate::{state, loading::ImageAssets};
+use crate::{state, init::ImageAssets};
 use super::{despawn_screen};
 
 // Splash screen

@@ -3,7 +3,7 @@ use bevy::{
 	prelude::{Input, KeyCode, Res},
 };
 
-use crate::{state, game, loading};
+use crate::{state, game, init};
 use super::{despawn_screen};
 use std::collections::HashMap;
 use rand::{thread_rng, Rng};
@@ -13,6 +13,8 @@ pub struct PlayerPlugin;
 #[derive(Component, Debug, Clone)]
 struct Player {
 	name: String,
+	score: usize,
+	is_alive: bool,
 }
 
 #[derive(Component, Debug)]
@@ -82,7 +84,7 @@ fn player_spawn_input(
 	mut in_game_state: ResMut<state::InGameState>,
 	mut players: Query<(&Player)>,
 	mut commands: Commands,
-	textures: Res<loading::TextureAssets>,
+	textures: Res<init::TextureAssets>,
 ) {
 	let mut rng = rand::thread_rng();
 	if !in_game_state.player1 && keyboard_input.any_just_pressed([KeyCode::Q, KeyCode::W]) {
@@ -149,28 +151,9 @@ fn player_movement_input(
 	}
 }
 
-/*
-fn spawn_players(mut in_game_state: ResMut<state::InGameState>, mut commands: Commands, textures: Res<loading::TextureAssets>) {
-	in_game_state.player1 = true;
-	in_game_state.player2 = true;
-	in_game_state.player3 = true;
-	in_game_state.player4 = true;
-	let player1_start_position = game::Position { x: 600, y: 450 };
-	let player2_start_position = game::Position { x: 650, y: 400 };
-	let player3_start_position = game::Position { x: 600, y: 350 };
-	let player4_start_position = game::Position { x: 550, y: 400 };
-
-	spawn_player(&mut commands, in_game_state, &textures, "Cookie Crab", player1_start_position, Direction::Up);
-	spawn_player(&mut commands, in_game_state, &textures, "Sid Starfish", player2_start_position, Direction::Right);
-	spawn_player(&mut commands, in_game_state, &textures, "Foo Frog", player3_start_position, Direction::Down);
-	spawn_player(&mut commands, in_game_state, &textures, "Jabby Jellyfish", player4_start_position, Direction::Left);
-}
-*/
-
-
 fn spawn_player(
 	commands: &mut Commands,
-	textures: &Res<loading::TextureAssets>,
+	textures: &Res<init::TextureAssets>,
 	player_name: &str,
 	start_position: game::Position,
 	direction: Direction,
@@ -193,7 +176,7 @@ fn spawn_player(
 			direction: direction,
 		})
 		.insert(start_position)
-		.insert(Player{name: player_name.to_string()});
+		.insert(Player{name: player_name.to_string(), score: 0, is_alive: true});
 }
 
 
@@ -214,7 +197,7 @@ fn move_players(
 	mut positions: Query<&mut game::Position>,
 	mut in_game_state: ResMut<state::InGameState>,
 	mut commands: Commands,
-	textures: Res<loading::TextureAssets>,
+	textures: Res<init::TextureAssets>,
 ) {
 	let segment_positions = get_all_positions(&segments, &positions);
 	let mut game_over_players = Vec::new();

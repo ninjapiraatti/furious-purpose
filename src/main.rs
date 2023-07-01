@@ -9,7 +9,7 @@ use bevy_asset_loader::{
 mod player;
 mod state;
 mod mainmenu;
-mod loading;
+mod init;
 mod splash;
 mod game;
 
@@ -48,7 +48,7 @@ fn main() {
 		.add_system(toggle_vsync)
 		.insert_resource(ReportExecutionOrderAmbiguities)
 		.add_state(state::AppState::Loading)
-		.add_plugin(loading::LoadingPlugin)
+		.add_plugin(init::InitPlugin)
 		.add_startup_system(setup)
 		.add_plugin(splash::SplashPlugin)
 		.add_plugin(mainmenu::MainMenuPlugin)
