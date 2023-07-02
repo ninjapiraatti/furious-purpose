@@ -8,22 +8,6 @@ use super::{despawn_screen};
 // Splash screen
 pub struct SplashPlugin;
 
-impl Plugin for SplashPlugin {
-	fn build(&self, app: &mut App) {
-		// As this plugin is managing the splash screen, it will focus on the state `state::AppState::Splash`
-		app
-			// When entering the state, spawn everything needed for this screen
-			.add_system_set(SystemSet::on_enter(state::AppState::Splash).with_system(splash_setup))
-			// While in this state, run the `countdown` system
-			.add_system_set(SystemSet::on_update(state::AppState::Splash).with_system(countdown))
-			// When exiting the state, despawn everything that was spawned for this screen
-			.add_system_set(
-				SystemSet::on_exit(state::AppState::Splash)
-					.with_system(despawn_screen::<OnSplashScreen>),
-			);
-	}
-}
-
 // Tag component used to tag entities added on the splash screen
 #[derive(Component)]
 struct OnSplashScreen;
@@ -32,8 +16,21 @@ struct OnSplashScreen;
 #[derive(Resource, Deref, DerefMut)]
 struct SplashTimer(Timer);
 
+impl Plugin for SplashPlugin {
+	fn build(&self, app: &mut App) {
+		app.add_state::<state::AppState>()
+		.insert_resource(SplashTimer(Timer::from_seconds(1.0, TimerMode::Once)))
+		.add_system(splash_setup.in_schedule(OnEnter(state::AppState::Splash)))
+		//.add_systems(OnEnter(state::AppState::Splash), splash_setup)
+		.add_system(countdown.in_set(OnUpdate(state::AppState::Splash)))
+		.add_system(despawn_screen::<OnSplashScreen>.in_schedule(OnExit(state::AppState::Splash)));
+	}
+}
+
 fn splash_setup(mut commands: Commands, image_assets: Res<ImageAssets>) {
+	println!("IN SPLASH SETUP");
 	let icon = image_assets.logo.clone();
+	//commands.insert_resource(SplashTimer(Timer::from_seconds(1.0, TimerMode::Once)));
 	// Display the logo
 	commands
 		.spawn((
@@ -59,19 +56,18 @@ fn splash_setup(mut commands: Commands, image_assets: Res<ImageAssets>) {
 				..default()
 			});
 		});
-	// Insert the timer as a resource
-	commands.insert_resource(SplashTimer(Timer::from_seconds(1.0, TimerMode::Once)));
 }
 
 // Tick the timer, and change state when finished
 fn countdown(
-	mut game_state: ResMut<State<state::AppState>>,
+	mut next_state: ResMut<NextState<state::AppState>>,
 	time: Res<Time>,
 	mut timer: ResMut<SplashTimer>,
 ) {
+	println!("In countdown");
 	if timer.tick(time.delta()).finished() {
 		println!("CHANGE SCENE");
-		game_state.set(state::AppState::MainMenu).unwrap();
+		next_state.set(state::AppState::MainMenu);
 	}
 	println!("{:?}", timer.elapsed_secs());
 }

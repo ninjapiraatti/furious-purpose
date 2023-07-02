@@ -2,8 +2,9 @@ use bevy::{
 	prelude::*,
 };
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Default, Clone, Eq, PartialEq, Hash, States)]
 pub enum AppState {
+	#[default]
 	Loading,
 	Splash,
 	MainMenu,

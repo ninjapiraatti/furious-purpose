@@ -16,12 +16,12 @@ const PRESSED_BUTTON: Color = Color::rgb(0.95, 0.75, 0.15);
 
 impl Plugin for GamePlugin {
 	fn build(&self, app: &mut App) {
-		app
-			// When entering the state, spawn everything needed for this screen
-			.add_system_set(SystemSet::on_enter(state::AppState::Game).with_system(game_setup))
-			.add_system_set(SystemSet::on_exit(state::AppState::Game).with_system(despawn_screen::<OnGame>))
-			.add_system_set(SystemSet::on_update(state::AppState::Game).with_system(test_system))
-			.add_system_set(SystemSet::on_update(state::AppState::Game).with_system(position_translation));
+		app.add_state::<state::AppState>()
+			.add_system(game_setup.in_schedule(OnEnter(state::AppState::Game)))
+			.add_system(despawn_screen::<OnGame>.in_schedule(OnExit(state::AppState::Game)))
+			.add_system(test_system.in_set(OnUpdate(state::AppState::Game)))
+			.add_system(player_scores.in_set(OnUpdate(state::AppState::Game)))
+			.add_system(position_translation.in_set(OnUpdate(state::AppState::Game)));
 	}
 }
 
@@ -35,12 +35,12 @@ pub struct Position {
 	pub y: i32,
 }
 
-fn position_translation(windows: Res<Windows>, mut q: Query<(&Position, &mut Transform)>) {
+fn position_translation(mut windows: Query<&mut Window>, mut q: Query<(&Position, &mut Transform)>) {
     fn convert(pos: f32, bound_window: f32, bound_game: f32) -> f32 {
         let tile_size = bound_window / bound_game;
         pos / bound_game * bound_window - (bound_window / 2.) + (tile_size / 2.)
     }
-    let window = windows.get_primary().unwrap();
+    let mut window = windows.single_mut();
     for (pos, mut transform) in q.iter_mut() {
         transform.translation = Vec3::new(
             convert(pos.x as f32, window.width() as f32, ARENA_WIDTH as f32),
@@ -55,8 +55,7 @@ pub fn test_system(
 		(&Interaction, &mut BackgroundColor, &Children),
 		(Changed<Interaction>, With<Button>),
 	>,
-	mut text_query: Query<&mut Text>,
-	mut game_state: ResMut<State<state::AppState>>,
+	mut text_query: Query<&mut Text>
 ) {
 	for (interaction, mut color, children) in &mut interaction_query {
 		let mut text = text_query.get_mut(children[0]).unwrap();
@@ -64,7 +63,6 @@ pub fn test_system(
 			Interaction::Clicked => {
 				text.sections[0].value = "^ - ^".to_string();
 				*color = PRESSED_BUTTON.into();
-				//game_state.set(state::AppState::Splash).unwrap();
 			}
 			Interaction::Hovered => {
 				text.sections[0].value = "LOLL".to_string();
@@ -77,6 +75,30 @@ pub fn test_system(
 			}
 		}
 	}
+}
+
+pub fn player_scores(mut commands: Commands, asset_server: Res<AssetServer>) {
+	commands.spawn((
+		// Create a TextBundle that has a Text with a single section.
+		TextBundle::from_section(
+				// Accepts a `String` or any type that converts into a `String`, such as `&str`
+				"hello\nbevy!",
+				TextStyle {
+						font: asset_server.load("OverpassMono-SemiBold.ttf"),
+						font_size: 100.0,
+						color: Color::WHITE,
+				},
+		) // Set the alignment of the Text
+		.with_text_alignment(TextAlignment::Center)
+		// Set the style of the TextBundle itself.
+		.with_style(Style {
+				position_type: PositionType::Absolute,
+				//bottom: Val::Px(5.0),
+				//right: Val::Px(15.0),
+				..default()
+		}),
+		//ColorText,
+	));
 }
 
 pub fn game_setup(mut commands: Commands, asset_server: Res<AssetServer>) {

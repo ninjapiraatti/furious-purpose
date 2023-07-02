@@ -70,12 +70,11 @@ pub enum PlayerMovement {
 /// Player logic is only active during the State `state::AppState::Game`
 impl Plugin for PlayerPlugin {
 	fn build(&self, app: &mut App) {
-		app
-			//.init_resource::<Actions>().add_system_set(SystemSet::on_update(state::AppState::Game).with_system(set_movement_actions))
-			.add_system_set(SystemSet::on_update(state::AppState::Game).with_system(player_spawn_input))
-			.add_system_set(SystemSet::on_update(state::AppState::Game).with_system(player_movement_input))
-			.add_system_set(SystemSet::on_update(state::AppState::Game).with_system(move_players))
-			.add_system_set(SystemSet::on_update(state::AppState::Game).with_system(grow_player_tails));
+		app.add_state::<state::AppState>()
+			.add_system(player_spawn_input.in_set(OnUpdate(state::AppState::Game)))
+			.add_system(player_movement_input.in_set(OnUpdate(state::AppState::Game)))
+			.add_system(move_players.in_set(OnUpdate(state::AppState::Game)))
+			.add_system(grow_player_tails.in_set(OnUpdate(state::AppState::Game)));
 	}
 }
 

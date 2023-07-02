@@ -13,12 +13,10 @@ const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
 
 impl Plugin for MainMenuPlugin {
 	fn build(&self, app: &mut App) {
-		// As this plugin is managing the splash screen, it will focus on the state `state::AppState::Splash`
-		app
-			// When entering the state, spawn everything needed for this screen
-			.add_system_set(SystemSet::on_exit(state::AppState::MainMenu).with_system(despawn_screen::<OnMainMenu>))
-			.add_system_set(SystemSet::on_enter(state::AppState::MainMenu).with_system(ui_setup))
-			.add_system_set(SystemSet::on_update(state::AppState::MainMenu).with_system(button_system));
+		app.add_state::<state::AppState>()
+		.add_system(ui_setup.in_schedule(OnEnter(state::AppState::MainMenu)))
+		.add_system(button_system.in_set(OnUpdate(state::AppState::MainMenu)))
+		.add_system(despawn_screen::<OnMainMenu>.in_schedule(OnExit(state::AppState::MainMenu)));
 	}
 }
 
@@ -32,7 +30,7 @@ pub fn button_system(
 		(Changed<Interaction>, With<Button>),
 	>,
 	mut text_query: Query<&mut Text>,
-	mut game_state: ResMut<State<state::AppState>>,
+	mut next_state: ResMut<NextState<state::AppState>>,
 ) {
 	for (interaction, mut color, children) in &mut interaction_query {
 		let mut text = text_query.get_mut(children[0]).unwrap();
@@ -40,7 +38,7 @@ pub fn button_system(
 			Interaction::Clicked => {
 				text.sections[0].value = "^ - ^".to_string();
 				*color = PRESSED_BUTTON.into();
-				game_state.set(state::AppState::Game).unwrap();
+				next_state.set(state::AppState::Game);
 			}
 			Interaction::Hovered => {
 				text.sections[0].value = "Start".to_string();
@@ -55,6 +53,7 @@ pub fn button_system(
 }
 
 pub fn ui_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+	println!("IN UI SETUP");
 	commands
 		.spawn(( // These are not some mysterious double parentheses but a tuple
 			NodeBundle {

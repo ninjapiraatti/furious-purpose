@@ -17,14 +17,12 @@ impl Plugin for InitPlugin {
 		app
 			.add_loading_state(
 				LoadingState::new(state::AppState::Loading)
-					.with_collection::<FontAssets>()
-					.with_collection::<ImageAssets>()
-					.with_collection::<TextureAssets>()
-					.continue_to_state(state::AppState::Splash),
+					.continue_to_state(state::AppState::Splash)
 			)
-			.add_system_set(SystemSet::on_update(state::AppState::Splash)
-            .with_system(log_loading_done)
-        );
+			.add_collection_to_loading_state::<_, FontAssets>(state::AppState::Loading)
+			.add_collection_to_loading_state::<_, ImageAssets>(state::AppState::Loading)
+			.add_collection_to_loading_state::<_, TextureAssets>(state::AppState::Loading)
+			.add_system(log_loading_done.in_set(OnUpdate(state::AppState::Splash)));
 	}
 }
 
