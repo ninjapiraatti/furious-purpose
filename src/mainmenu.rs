@@ -14,11 +14,13 @@ const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
 impl Plugin for MainMenuPlugin {
 	fn build(&self, app: &mut App) {
 		app.add_state::<state::AppState>()
-		.add_system(ui_setup.in_schedule(OnEnter(state::AppState::MainMenu)))
+		//.add_system(ui_setup.in_schedule(OnEnter(state::AppState::MainMenu)))
+		.add_systems(OnEnter(state::AppState::MainMenu), ui_setup)
 		.add_systems(Update, (
 			button_system
 		).run_if(in_state(state::AppState::MainMenu)))
-		.add_system(despawn_screen::<OnMainMenu>.in_schedule(OnExit(state::AppState::MainMenu)));
+		//.add_system(despawn_screen::<OnMainMenu>.in_schedule(OnExit(state::AppState::MainMenu)))
+		.add_systems(OnExit(state::AppState::MainMenu), despawn_screen::<OnMainMenu>);
 	}
 }
 

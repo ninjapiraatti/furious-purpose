@@ -43,7 +43,7 @@ fn main() {
 		.insert_resource(ClearColor(Color::rgb(0.1, 0.1, 0.1)))
 		.insert_resource(state::InGameState::default())
 		.insert_resource(player::PlayerSegments::default())
-		.add_system(toggle_vsync)
+		//.add_system(toggle_vsync)
 		//.add_state(state::AppState::Loading)
 		.add_state::<state::AppState>()
 		.add_plugin(init::InitPlugin)

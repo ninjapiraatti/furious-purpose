@@ -29,7 +29,8 @@ impl Plugin for SplashPlugin {
 		.add_systems(Update, (
 			countdown
 		).run_if(in_state(state::AppState::Splash)))
-		.add_system(despawn_screen::<OnSplashScreen>.in_schedule(OnExit(state::AppState::Splash)));
+		//.add_system(despawn_screen::<OnSplashScreen>.in_schedule(OnExit(state::AppState::Splash)))
+		.add_systems(OnExit(state::AppState::Splash), despawn_screen::<OnSplashScreen>);
 	}
 }
 

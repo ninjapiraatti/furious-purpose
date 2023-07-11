@@ -17,8 +17,10 @@ const PRESSED_BUTTON: Color = Color::rgb(0.95, 0.75, 0.15);
 impl Plugin for GamePlugin {
 	fn build(&self, app: &mut App) {
 		app.add_state::<state::AppState>()
-			.add_system(game_setup.in_schedule(OnEnter(state::AppState::Game)))
-			.add_system(despawn_screen::<OnGame>.in_schedule(OnExit(state::AppState::Game)))
+			//.add_system(game_setup.in_schedule(OnEnter(state::AppState::Game)))
+			.add_systems(OnEnter(state::AppState::Game), game_setup)
+			.add_systems(OnExit(state::AppState::Game), despawn_screen::<OnGame>)
+			//.add_system(despawn_screen::<OnGame>.in_schedule(OnExit(state::AppState::Game)))
 			.add_systems(Update, (
 				test_system,
 				player_scores,
