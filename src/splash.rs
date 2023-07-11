@@ -2,7 +2,10 @@ use bevy::{
 	prelude::*,
 };
 
-use crate::{state, init::ImageAssets};
+use crate::{
+	state,
+	//init::ImageAssets
+};
 use super::{despawn_screen};
 
 // Splash screen
@@ -20,7 +23,8 @@ impl Plugin for SplashPlugin {
 	fn build(&self, app: &mut App) {
 		app.add_state::<state::AppState>()
 		.insert_resource(SplashTimer(Timer::from_seconds(1.0, TimerMode::Once)))
-		.add_system(splash_setup.in_schedule(OnEnter(state::AppState::Splash)))
+		//.add_system(splash_setup.in_schedule(OnEnter(state::AppState::Splash)))
+		.add_systems(OnEnter(state::AppState::Splash), splash_setup)
 		//.add_systems(OnEnter(state::AppState::Splash), splash_setup)
 		.add_systems(Update, (
 			countdown
@@ -29,11 +33,15 @@ impl Plugin for SplashPlugin {
 	}
 }
 
-fn splash_setup(mut commands: Commands, image_assets: Res<ImageAssets>) {
+fn splash_setup(
+	mut commands: Commands, 
+	//image_assets: Res<ImageAssets>
+) {
 	println!("IN SPLASH SETUP");
-	let icon = image_assets.logo.clone();
+	//let icon = image_assets.logo.clone();
 	//commands.insert_resource(SplashTimer(Timer::from_seconds(1.0, TimerMode::Once)));
 	// Display the logo
+	/* 
 	commands
 		.spawn((
 			NodeBundle {
@@ -61,6 +69,16 @@ fn splash_setup(mut commands: Commands, image_assets: Res<ImageAssets>) {
 				..default()
 			});
 		});
+		*/
+		commands.spawn(SpriteBundle {
+			sprite: Sprite {
+					color: Color::rgb(0.25, 0.25, 0.75),
+					custom_size: Some(Vec2::new(50.0, 100.0)),
+					..default()
+			},
+			transform: Transform::from_translation(Vec3::new(-50., 0., 0.)),
+			..default()
+	});
 }
 
 // Tick the timer, and change state when finished

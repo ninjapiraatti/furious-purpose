@@ -15,13 +15,15 @@ pub struct InitPlugin;
 impl Plugin for InitPlugin {
 	fn build(&self, app: &mut App) {
 		app
-			.add_loading_state(
+			/*
+			.add_loading_state( // This is from asset loader
 				LoadingState::new(state::AppState::Loading)
 					.continue_to_state(state::AppState::Splash)
 			)
-			.add_collection_to_loading_state::<_, FontAssets>(state::AppState::Loading)
-			.add_collection_to_loading_state::<_, ImageAssets>(state::AppState::Loading)
-			.add_collection_to_loading_state::<_, TextureAssets>(state::AppState::Loading)
+			*/
+			//.add_collection_to_loading_state::<_, FontAssets>(state::AppState::Loading)
+			//.add_collection_to_loading_state::<_, ImageAssets>(state::AppState::Loading)
+			//.add_collection_to_loading_state::<_, TextureAssets>(state::AppState::Loading)
 			.add_systems(Update, log_loading_done.run_if(in_state(state::AppState::Splash)));
 	}
 }
@@ -32,6 +34,14 @@ pub struct Materials {
 	pub segment_material: Handle<ColorMaterial>,
 }
 
+#[derive(Resource)]
+pub struct TempTextureAssets {
+	pub crab: usize,
+	pub starfish: usize,
+	pub frog: usize,
+	pub jellyfish: usize
+}
+/*
 #[derive(AssetCollection, Resource)]
 pub struct FontAssets {
 	#[asset(path = "OverpassMono-SemiBold.ttf")]
@@ -56,6 +66,7 @@ pub struct TextureAssets {
 	pub jellyfish: Handle<Image>,
 }
 
+*/
 fn log_loading_done() {
 	println!("Loading done");
 }

@@ -65,7 +65,7 @@ pub fn test_system(
 	for (interaction, mut color, children) in &mut interaction_query {
 		let mut text = text_query.get_mut(children[0]).unwrap();
 		match *interaction {
-			Interaction::Clicked => {
+			Interaction::Pressed => {
 				text.sections[0].value = "^ - ^".to_string();
 				*color = PRESSED_BUTTON.into();
 			}
@@ -129,7 +129,8 @@ pub fn game_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 						height: Val::Px(50.0),
 						// horizontally center child text
 						position_type: PositionType::Absolute,
-						position: UiRect { left: Val::Px(10.0), top: Val::Px(10.0), ..default()},
+						left: Val::Px(10.0),
+						top: Val::Px(10.0),
 						justify_content: JustifyContent::Center,
 						// vertically center child text
 						align_items: AlignItems::Center,
