@@ -22,7 +22,9 @@ impl Plugin for SplashPlugin {
 		.insert_resource(SplashTimer(Timer::from_seconds(1.0, TimerMode::Once)))
 		.add_system(splash_setup.in_schedule(OnEnter(state::AppState::Splash)))
 		//.add_systems(OnEnter(state::AppState::Splash), splash_setup)
-		.add_system(countdown.in_set(OnUpdate(state::AppState::Splash)))
+		.add_systems(Update, (
+			countdown
+		).run_if(in_state(state::AppState::Splash)))
 		.add_system(despawn_screen::<OnSplashScreen>.in_schedule(OnExit(state::AppState::Splash)));
 	}
 }
@@ -38,7 +40,8 @@ fn splash_setup(mut commands: Commands, image_assets: Res<ImageAssets>) {
 				style: Style {
 					align_items: AlignItems::Center,
 					justify_content: JustifyContent::Center,
-					size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+					
+					//size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
 					..default()
 				},
 				..default()
@@ -49,7 +52,9 @@ fn splash_setup(mut commands: Commands, image_assets: Res<ImageAssets>) {
 			parent.spawn(ImageBundle {
 				style: Style {
 					// This will set the logo to be 200px wide, and auto adjust its height
-					size: Size::new(Val::Px(200.0), Val::Auto),
+					width: Val::Px(200.0),
+					height: Val::Auto,
+					//size: Size::new(Val::Px(200.0), Val::Auto),
 					..default()
 				},
 				image: UiImage::from(icon),

@@ -15,7 +15,9 @@ impl Plugin for MainMenuPlugin {
 	fn build(&self, app: &mut App) {
 		app.add_state::<state::AppState>()
 		.add_system(ui_setup.in_schedule(OnEnter(state::AppState::MainMenu)))
-		.add_system(button_system.in_set(OnUpdate(state::AppState::MainMenu)))
+		.add_systems(Update, (
+			button_system
+		).run_if(in_state(state::AppState::MainMenu)))
 		.add_system(despawn_screen::<OnMainMenu>.in_schedule(OnExit(state::AppState::MainMenu)));
 	}
 }
@@ -58,7 +60,8 @@ pub fn ui_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 		.spawn(( // These are not some mysterious double parentheses but a tuple
 			NodeBundle {
 				style: Style {
-					size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+					width: Val::Px(100.0),
+					height: Val::Px(100.0),
 					align_items: AlignItems::Center,
 					justify_content: JustifyContent::Center,
 					..default()
@@ -70,7 +73,8 @@ pub fn ui_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 			parent
 				.spawn(ButtonBundle {
 					style: Style {
-						size: Size::new(Val::Px(150.0), Val::Px(65.0)),
+						width: Val::Px(150.0),
+						height: Val::Px(65.0),
 						// horizontally center child text
 						justify_content: JustifyContent::Center,
 						// vertically center child text

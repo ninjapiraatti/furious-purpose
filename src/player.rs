@@ -71,10 +71,16 @@ pub enum PlayerMovement {
 impl Plugin for PlayerPlugin {
 	fn build(&self, app: &mut App) {
 		app.add_state::<state::AppState>()
-			.add_system(player_spawn_input.in_set(OnUpdate(state::AppState::Game)))
-			.add_system(player_movement_input.in_set(OnUpdate(state::AppState::Game)))
-			.add_system(move_players.in_set(OnUpdate(state::AppState::Game)))
-			.add_system(grow_player_tails.in_set(OnUpdate(state::AppState::Game)));
+		.add_systems(Update, (
+			player_spawn_input,
+			player_movement_input,
+			move_players,
+			grow_player_tails
+		).run_if(in_state(state::AppState::Game)));
+			// .add_system(player_spawn_input.in_set(OnUpdate(state::AppState::Game)))
+			// .add_system(player_movement_input.in_set(OnUpdate(state::AppState::Game)))
+			// .add_system(move_players.in_set(OnUpdate(state::AppState::Game)))
+			// .add_system(grow_player_tails.in_set(OnUpdate(state::AppState::Game)));
 	}
 }
 

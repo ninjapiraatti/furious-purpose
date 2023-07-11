@@ -19,9 +19,14 @@ impl Plugin for GamePlugin {
 		app.add_state::<state::AppState>()
 			.add_system(game_setup.in_schedule(OnEnter(state::AppState::Game)))
 			.add_system(despawn_screen::<OnGame>.in_schedule(OnExit(state::AppState::Game)))
-			.add_system(test_system.in_set(OnUpdate(state::AppState::Game)))
-			.add_system(player_scores.in_set(OnUpdate(state::AppState::Game)))
-			.add_system(position_translation.in_set(OnUpdate(state::AppState::Game)));
+			.add_systems(Update, (
+				test_system,
+				player_scores,
+				position_translation
+			).run_if(in_state(state::AppState::Game)));
+			// .add_system(test_system.in_set(OnUpdate(state::AppState::Game)))
+			// .add_system(player_scores.in_set(OnUpdate(state::AppState::Game)))
+			// .add_system(position_translation.in_set(OnUpdate(state::AppState::Game)));
 	}
 }
 
@@ -106,7 +111,8 @@ pub fn game_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 		.spawn(( // These are not some mysterious double parentheses but a tuple
 			NodeBundle {
 				style: Style {
-					size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+					width: Val::Px(100.0),
+					height: Val::Px(100.0),
 					align_items: AlignItems::Center,
 					justify_content: JustifyContent::Center,
 					..default()
@@ -119,7 +125,8 @@ pub fn game_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 				.spawn(
 					ButtonBundle {
 					style: Style {
-						size: Size::new(Val::Px(100.0), Val::Px(50.0)),
+						width: Val::Px(100.0),
+						height: Val::Px(50.0),
 						// horizontally center child text
 						position_type: PositionType::Absolute,
 						position: UiRect { left: Val::Px(10.0), top: Val::Px(10.0), ..default()},
