@@ -43,6 +43,7 @@ fn splash_setup(
 		.spawn((
 			NodeBundle {
 				style: Style {
+					width: Val::Percent(100.0),
 					align_items: AlignItems::Center,
 					justify_content: JustifyContent::Center,
 					..default()

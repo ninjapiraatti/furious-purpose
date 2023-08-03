@@ -60,8 +60,7 @@ pub fn ui_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 		.spawn(( // These are not some mysterious double parentheses but a tuple
 			NodeBundle {
 				style: Style {
-					width: Val::Px(100.0),
-					height: Val::Px(100.0),
+					width: Val::Percent(100.0),
 					align_items: AlignItems::Center,
 					justify_content: JustifyContent::Center,
 					..default()
