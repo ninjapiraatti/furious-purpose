@@ -24,9 +24,15 @@ struct GameRules {
 	max_players: usize,
 }
 
-pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn setup(
+	mut commands: Commands,
+	asset_server: Res<AssetServer>,
+	mut next_state: ResMut<NextState<state::AppState>>
+) {
 	// ui camera
+	println!("IN MAIN SETUP");
 	commands.spawn(Camera2dBundle::default());
+	next_state.set(state::AppState::Splash);
 }
 
 fn main() {
@@ -46,12 +52,12 @@ fn main() {
 		//.add_system(toggle_vsync)
 		//.add_state(state::AppState::Loading)
 		.add_state::<state::AppState>()
-		.add_plugin(init::InitPlugin)
-		.add_startup_system(setup)
-		.add_plugin(splash::SplashPlugin)
-		.add_plugin(mainmenu::MainMenuPlugin)
-		.add_plugin(game::GamePlugin)
-		.add_plugin(player::PlayerPlugin)
+		.add_plugins(init::InitPlugin)
+		.add_systems(Startup, setup)
+		.add_plugins(splash::SplashPlugin)
+		.add_plugins(mainmenu::MainMenuPlugin)
+		.add_plugins(game::GamePlugin)
+		.add_plugins(player::PlayerPlugin)
 		.run();
 }
 
