@@ -6,7 +6,7 @@ use bevy::{
 use crate::{state, game, init};
 use super::{despawn_screen};
 use std::collections::HashMap;
-use rand::{thread_rng, Rng};
+use rand::{Rng};
 
 pub struct PlayerPlugin;
 
@@ -58,14 +58,6 @@ struct PlayerSegment;
 #[derive(Resource, Default)]
 pub struct PlayerSegments(pub HashMap<String, Vec<Entity>>);
 
-
-pub enum PlayerMovement {
-	Input,
-	Movement,
-	Growth,
-	Spawn,
-}
-
 /// This plugin handles player related stuff like movement
 /// Player logic is only active during the State `state::AppState::Game`
 impl Plugin for PlayerPlugin {
@@ -77,17 +69,12 @@ impl Plugin for PlayerPlugin {
 			move_players,
 			grow_player_tails
 		).run_if(in_state(state::AppState::Game)));
-			// .add_system(player_spawn_input.in_set(OnUpdate(state::AppState::Game)))
-			// .add_system(player_movement_input.in_set(OnUpdate(state::AppState::Game)))
-			// .add_system(move_players.in_set(OnUpdate(state::AppState::Game)))
-			// .add_system(grow_player_tails.in_set(OnUpdate(state::AppState::Game)));
 	}
 }
 
 fn player_spawn_input(
 	keyboard_input: Res<Input<KeyCode>>,
 	mut in_game_state: ResMut<state::InGameState>,
-	mut players: Query<(&Player)>,
 	mut commands: Commands,
 	textures: Res<init::TextureAssets>,
 ) {
@@ -95,8 +82,8 @@ fn player_spawn_input(
 	if !in_game_state.player1 && keyboard_input.any_just_pressed([KeyCode::Q, KeyCode::W]) {
 		println!("Spawn player 1");
 		let start_position = game::Position {
-			x: rng.gen_range(100..1100), // Generate random x position between 100 and 1100
-			y: rng.gen_range(100..700),  // Generate random y position between 100 and 700
+			x: rng.gen_range(100..1100),
+			y: rng.gen_range(100..700),
 		};
 		spawn_player(&mut commands, &textures, "Cookie Crab", start_position, Direction::Down);
 		in_game_state.player1 = true;
@@ -104,8 +91,8 @@ fn player_spawn_input(
 	if !in_game_state.player2 && keyboard_input.any_just_pressed([KeyCode::B, KeyCode::N]) {
 		println!("Spawn player 2");
 		let start_position = game::Position {
-			x: rng.gen_range(100..1100), // Generate random x position between 100 and 1100
-			y: rng.gen_range(100..700),  // Generate random y position between 100 and 700
+			x: rng.gen_range(100..1100),
+			y: rng.gen_range(100..700),
 		};
 		spawn_player(&mut commands, &textures, "Sid Starfish", start_position, Direction::Down);
 		in_game_state.player2 = true;
@@ -202,11 +189,10 @@ fn move_players(
 	mut positions: Query<&mut game::Position>,
 	mut in_game_state: ResMut<state::InGameState>,
 	mut commands: Commands,
-	textures: Res<init::TextureAssets>,
 ) {
 	let segment_positions = get_all_positions(&segments, &positions);
 	let mut game_over_players = Vec::new();
-	for (head_entity, head, mut player) in heads.iter_mut() {
+	for (head_entity, head, player) in heads.iter_mut() {
 		let mut head_pos = positions.get_mut(head_entity).unwrap();
 		//println!("head pos: {:?}", head_pos);
 		match head.direction {
@@ -256,7 +242,6 @@ fn move_players(
 				"Sid Starfish" => in_game_state.player2 = false,
 				"Foo Frog" => in_game_state.player3 = false,
 				"Jabby Jellyfish" => in_game_state.player4 = false,
-				// Add here other player names if necessary
 				_ => (),
 			}
 			commands.entity(head_entity).despawn();

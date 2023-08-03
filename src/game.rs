@@ -17,18 +17,13 @@ const PRESSED_BUTTON: Color = Color::rgb(0.95, 0.75, 0.15);
 impl Plugin for GamePlugin {
 	fn build(&self, app: &mut App) {
 		app.add_state::<state::AppState>()
-			//.add_system(game_setup.in_schedule(OnEnter(state::AppState::Game)))
 			.add_systems(OnEnter(state::AppState::Game), game_setup)
 			.add_systems(OnExit(state::AppState::Game), despawn_screen::<OnGame>)
-			//.add_system(despawn_screen::<OnGame>.in_schedule(OnExit(state::AppState::Game)))
 			.add_systems(Update, (
 				test_system,
 				player_scores,
 				position_translation
 			).run_if(in_state(state::AppState::Game)));
-			// .add_system(test_system.in_set(OnUpdate(state::AppState::Game)))
-			// .add_system(player_scores.in_set(OnUpdate(state::AppState::Game)))
-			// .add_system(position_translation.in_set(OnUpdate(state::AppState::Game)));
 	}
 }
 
@@ -47,7 +42,7 @@ fn position_translation(mut windows: Query<&mut Window>, mut q: Query<(&Position
         let tile_size = bound_window / bound_game;
         pos / bound_game * bound_window - (bound_window / 2.) + (tile_size / 2.)
     }
-    let mut window = windows.single_mut();
+    let window = windows.single_mut();
     for (pos, mut transform) in q.iter_mut() {
         transform.translation = Vec3::new(
             convert(pos.x as f32, window.width() as f32, ARENA_WIDTH as f32),

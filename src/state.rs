@@ -13,15 +13,11 @@ pub enum AppState {
 	GameOver,
 }
 
-struct Score {
-	value: usize,
-}
-
 #[derive(Resource, Default)]
 pub struct InGameState {
-	current_round: usize,
-	total_players: usize,
-	winning_player: Option<String>,
+	//current_round: usize,
+	//total_players: usize,
+	//winning_player: Option<String>,
 	pub player1: bool,
 	pub player2: bool,
 	pub player3: bool,

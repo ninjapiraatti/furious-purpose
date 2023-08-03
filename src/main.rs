@@ -2,9 +2,7 @@ use bevy::{
 	prelude::*,
 	window::{PresentMode},
 };
-use bevy_asset_loader::{
-	prelude::*,
-};
+
 mod player;
 mod state;
 mod mainmenu;
@@ -12,25 +10,10 @@ mod init;
 mod splash;
 mod game;
 
-fn print_position_system(query: Query<&Transform>) {
-	for transform in query.iter() {
-		println!("position: {:?}", transform.translation);
-	}
-}
-
-struct GameRules {
-	winning_score: usize,
-	max_rounds: usize,
-	max_players: usize,
-}
-
 pub fn setup(
 	mut commands: Commands,
-	asset_server: Res<AssetServer>,
 	mut next_state: ResMut<NextState<state::AppState>>
 ) {
-	// ui camera
-	println!("IN MAIN SETUP");
 	commands.spawn(Camera2dBundle::default());
 	next_state.set(state::AppState::Loading);
 }
@@ -49,8 +32,7 @@ fn main() {
 		.insert_resource(ClearColor(Color::rgb(0.1, 0.1, 0.1)))
 		.insert_resource(state::InGameState::default())
 		.insert_resource(player::PlayerSegments::default())
-		//.add_system(toggle_vsync)
-		//.add_state(state::AppState::Loading)
+		.add_systems(Update, toggle_vsync)
 		.add_state::<state::AppState>()
 		.add_plugins(init::InitPlugin)
 		.add_plugins(splash::SplashPlugin)

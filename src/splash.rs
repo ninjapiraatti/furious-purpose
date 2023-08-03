@@ -23,13 +23,10 @@ impl Plugin for SplashPlugin {
 	fn build(&self, app: &mut App) {
 		app.add_state::<state::AppState>()
 		.insert_resource(SplashTimer(Timer::from_seconds(1.0, TimerMode::Once)))
-		//.add_system(splash_setup.in_schedule(OnEnter(state::AppState::Splash)))
 		.add_systems(OnEnter(state::AppState::Splash), splash_setup)
-		//.add_systems(OnEnter(state::AppState::Splash), splash_setup)
 		.add_systems(Update, (
 			countdown
 		).run_if(in_state(state::AppState::Splash)))
-		//.add_system(despawn_screen::<OnSplashScreen>.in_schedule(OnExit(state::AppState::Splash)))
 		.add_systems(OnExit(state::AppState::Splash), despawn_screen::<OnSplashScreen>);
 	}
 }
@@ -48,8 +45,6 @@ fn splash_setup(
 				style: Style {
 					align_items: AlignItems::Center,
 					justify_content: JustifyContent::Center,
-					
-					//size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
 					..default()
 				},
 				..default()
@@ -62,22 +57,12 @@ fn splash_setup(
 					// This will set the logo to be 200px wide, and auto adjust its height
 					width: Val::Px(200.0),
 					height: Val::Auto,
-					//size: Size::new(Val::Px(200.0), Val::Auto),
 					..default()
 				},
 				image: UiImage::from(icon),
 				..default()
 			});
 		});
-		commands.spawn(SpriteBundle {
-			sprite: Sprite {
-					color: Color::rgb(0.25, 0.25, 0.75),
-					custom_size: Some(Vec2::new(50.0, 100.0)),
-					..default()
-			},
-			transform: Transform::from_translation(Vec3::new(-50., 0., 0.)),
-			..default()
-	});
 }
 
 // Tick the timer, and change state when finished
