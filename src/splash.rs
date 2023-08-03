@@ -4,7 +4,7 @@ use bevy::{
 
 use crate::{
 	state,
-	//init::ImageAssets
+	init::ImageAssets
 };
 use super::{despawn_screen};
 
@@ -36,13 +36,12 @@ impl Plugin for SplashPlugin {
 
 fn splash_setup(
 	mut commands: Commands, 
-	//image_assets: Res<ImageAssets>
+	image_assets: Res<ImageAssets>
 ) {
 	println!("IN SPLASH SETUP");
-	//let icon = image_assets.logo.clone();
-	//commands.insert_resource(SplashTimer(Timer::from_seconds(1.0, TimerMode::Once)));
-	// Display the logo
-	/* 
+	let icon = image_assets.logo.clone();
+	commands.insert_resource(SplashTimer(Timer::from_seconds(1.0, TimerMode::Once)));
+
 	commands
 		.spawn((
 			NodeBundle {
@@ -70,7 +69,6 @@ fn splash_setup(
 				..default()
 			});
 		});
-		*/
 		commands.spawn(SpriteBundle {
 			sprite: Sprite {
 					color: Color::rgb(0.25, 0.25, 0.75),

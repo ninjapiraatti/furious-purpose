@@ -32,7 +32,7 @@ pub fn setup(
 	// ui camera
 	println!("IN MAIN SETUP");
 	commands.spawn(Camera2dBundle::default());
-	next_state.set(state::AppState::Splash);
+	next_state.set(state::AppState::Loading);
 }
 
 fn main() {
@@ -53,11 +53,11 @@ fn main() {
 		//.add_state(state::AppState::Loading)
 		.add_state::<state::AppState>()
 		.add_plugins(init::InitPlugin)
-		.add_systems(Startup, setup)
 		.add_plugins(splash::SplashPlugin)
 		.add_plugins(mainmenu::MainMenuPlugin)
 		.add_plugins(game::GamePlugin)
 		.add_plugins(player::PlayerPlugin)
+		.add_systems(Startup, setup)
 		.run();
 }
 

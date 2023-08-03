@@ -89,8 +89,7 @@ fn player_spawn_input(
 	mut in_game_state: ResMut<state::InGameState>,
 	mut players: Query<(&Player)>,
 	mut commands: Commands,
-	//textures: Res<init::TextureAssets>,
-	textures: Res<init::TempTextureAssets>
+	textures: Res<init::TextureAssets>,
 ) {
 	let mut rng = rand::thread_rng();
 	if !in_game_state.player1 && keyboard_input.any_just_pressed([KeyCode::Q, KeyCode::W]) {
@@ -159,8 +158,7 @@ fn player_movement_input(
 
 fn spawn_player(
 	commands: &mut Commands,
-	//textures: &Res<init::TextureAssets>,
-	textures: &Res<init::TempTextureAssets>,
+	textures: &Res<init::TextureAssets>,
 	player_name: &str,
 	start_position: game::Position,
 	direction: Direction,
@@ -175,7 +173,7 @@ fn spawn_player(
 	};
 	commands
 		.spawn(SpriteBundle {
-			//texture: texture,
+			texture: texture,
 			transform: Transform::from_translation(Vec3::new(0., 0., 1.)),
 			..Default::default()
 		})
@@ -204,7 +202,7 @@ fn move_players(
 	mut positions: Query<&mut game::Position>,
 	mut in_game_state: ResMut<state::InGameState>,
 	mut commands: Commands,
-	//textures: Res<init::TextureAssets>,
+	textures: Res<init::TextureAssets>,
 ) {
 	let segment_positions = get_all_positions(&segments, &positions);
 	let mut game_over_players = Vec::new();
