@@ -14,6 +14,7 @@ pub struct PlayerPlugin;
 struct Player {
   name: String,
   is_alive: bool,
+  player_tag: game::PlayerTag,
 }
 
 #[derive(Component, Debug)]
@@ -50,9 +51,6 @@ impl Direction {
     }
   }
 }
-
-#[derive(Component, Debug)]
-struct PlayerSegment;
 
 #[derive(Resource, Default)]
 pub struct PlayerSegments(pub HashMap<String, Vec<Entity>>);
@@ -172,6 +170,13 @@ fn spawn_player(
     "Jabby Jellyfish" => textures.jellyfish.clone(),
     _ => textures.crab.clone(),
   };
+  let tag = match player_name {
+    "Cookie Crab" => game::PlayerTag::Player1,
+    "Sid Starfish" => game::PlayerTag::Player2,
+    "Foo Frog" => game::PlayerTag::Player3,
+    "Jabby Jellyfish" => game::PlayerTag::Player4,
+    _ => game::PlayerTag::Player1,
+  };
   commands
     .spawn(SpriteBundle {
       texture: texture,
@@ -185,9 +190,11 @@ fn spawn_player(
     .insert(Player {
       name: player_name.to_string(),
       is_alive: true,
+      player_tag: tag,
     });
 }
 
+/*
 fn get_all_positions(
   segments: &PlayerSegments,
   positions: &Query<&mut game::Position>,
@@ -201,17 +208,45 @@ fn get_all_positions(
         .flat_map(|entity| positions.get(*entity).ok().map(|pos| *pos))
     })
     .collect()
+} */
+
+fn get_all_positions(
+  segments: &PlayerSegments,
+  positions: &Query<&mut game::Position>,
+  heads: &Query<(Entity, &PlayerHead, &mut Player)>,
+) -> Vec<(game::Position, game::PlayerTag)> {
+  let mut all_positions = Vec::new();
+
+  // Create a mapping from player name to player tag.
+  let player_name_to_tag: HashMap<String, game::PlayerTag> = heads
+    .iter()
+    .map(|(_, _, player)| (player.name.clone(), player.player_tag))
+    .collect();
+
+  for (player_name, segment_entities) in segments.0.iter() {
+    let player_tag = player_name_to_tag
+      .get(player_name)
+      .unwrap_or(&game::PlayerTag::Player1); // Default value or handle error
+
+    for entity in segment_entities {
+      if let Ok(pos) = positions.get(*entity) {
+        all_positions.push((*pos, *player_tag));
+      }
+    }
+  }
+
+  all_positions
 }
 
 fn move_players(
-  mut scores: ResMut<state::PlayerScores>,
   mut segments: ResMut<PlayerSegments>,
   mut heads: Query<(Entity, &PlayerHead, &mut Player)>,
   mut positions: Query<&mut game::Position>,
   mut in_game_state: ResMut<state::InGameState>,
+  mut scores: ResMut<state::PlayerScores>,
   mut commands: Commands,
 ) {
-  let segment_positions = get_all_positions(&segments, &positions);
+  let segment_positions = get_all_positions(&segments, &positions, &heads);
   let mut game_over_players = Vec::new();
   for (head_entity, head, player) in heads.iter_mut() {
     let mut head_pos = positions.get_mut(head_entity).unwrap();
@@ -234,11 +269,26 @@ fn move_players(
       || head_pos.y < 0
       || head_pos.x as u32 >= game::ARENA_WIDTH
       || head_pos.y as u32 >= game::ARENA_HEIGHT
-      || segment_positions.contains(&head_pos)
     {
-      scores.player1 += 1;
       game_over_players.push(player.name.clone());
       continue;
+    }
+    // Assuming all_segment_data is a Vec<(game::Position, game::PlayerTag)>
+    for (pos, player_tag) in &segment_positions {
+      if *pos == *head_pos {
+        println!(
+          "Collision detected with segment owned by {:?} at position {:?}",
+          player_tag, pos
+        );
+        game_over_players.push(player.name.clone());
+        match player_tag {
+          game::PlayerTag::Player1 => scores.player1 += 1,
+          game::PlayerTag::Player2 => scores.player2 += 1,
+          game::PlayerTag::Player3 => scores.player3 += 1,
+          game::PlayerTag::Player4 => scores.player4 += 1,
+        }
+        continue; // or continue depending on your game logic
+      }
     }
   }
 
@@ -272,8 +322,18 @@ fn grow_player_tails(
   mut commands: Commands,
   head_positions: Query<(&game::Position, &Player), With<PlayerHead>>,
   mut segments: ResMut<PlayerSegments>,
+  game_state: Res<state::InGameState>,
 ) {
   for (head_position, player) in head_positions.iter() {
+    let is_alive = match player.player_tag {
+      game::PlayerTag::Player1 => game_state.player1,
+      game::PlayerTag::Player2 => game_state.player2,
+      game::PlayerTag::Player3 => game_state.player3,
+      game::PlayerTag::Player4 => game_state.player4,
+    };
+    if !is_alive {
+      continue;
+    }
     let player_segments = segments
       .0
       .entry(player.name.clone())
