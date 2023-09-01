@@ -25,6 +25,7 @@ fn main() {
     }))
     .insert_resource(ClearColor(Color::rgb(0.1, 0.1, 0.1)))
     .insert_resource(state::InGameState::default())
+    .insert_resource(state::PlayerScores::default())
     .insert_resource(player::PlayerSegments::default())
     .add_systems(Update, toggle_vsync)
     .add_state::<state::AppState>()

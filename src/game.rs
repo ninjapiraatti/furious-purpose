@@ -2,10 +2,17 @@ use bevy::prelude::*;
 
 use super::despawn_screen;
 use crate::state;
+use bevy::ecs::system::EntityCommands;
 
 pub struct GamePlugin;
+
 #[derive(Component)]
-pub struct ScoresText;
+pub enum ScoreTag {
+  Player1Score,
+  Player2Score,
+  Player3Score,
+  Player4Score,
+}
 
 pub const ARENA_WIDTH: u32 = 1200;
 pub const ARENA_HEIGHT: u32 = 800;
@@ -22,7 +29,7 @@ impl Plugin for GamePlugin {
       .add_systems(OnExit(state::AppState::Game), despawn_screen::<OnGame>)
       .add_systems(
         Update,
-        (test_system, position_translation).run_if(in_state(state::AppState::Game)),
+        (test_system, position_translation, score_update_system).run_if(in_state(state::AppState::Game)),
       );
   }
 }
@@ -52,6 +59,20 @@ fn position_translation(
       convert(pos.y as f32, window.height() as f32, ARENA_HEIGHT as f32),
       0.0,
     );
+  }
+}
+
+fn score_update_system(
+  scores: ResMut<state::PlayerScores>,
+  mut query: Query<(&ScoreTag, &mut Text)>,
+) {
+  for (tag, mut text) in query.iter_mut() {
+    match tag {
+      ScoreTag::Player1Score => text.sections[0].value = scores.player1.to_string(),
+      ScoreTag::Player2Score => text.sections[0].value = scores.player2.to_string(),
+      ScoreTag::Player3Score => text.sections[0].value = scores.player3.to_string(),
+      ScoreTag::Player4Score => text.sections[0].value = "x".to_string(),
+    }
   }
 }
 
@@ -119,7 +140,7 @@ pub fn test_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
         // Because this is a distinct label widget and
         // not button/list item text, this is necessary
         // for accessibility to treat the text accordingly.
-        Label,
+        ScoreTag::Player1Score,
       ));
       parent.spawn((
         TextBundle::from_section(
@@ -136,7 +157,7 @@ pub fn test_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
           right: Val::Px(15.0),
           ..default()
         }),
-        Label,
+        ScoreTag::Player2Score,
       ));
       parent.spawn((
         TextBundle::from_section(
@@ -153,7 +174,7 @@ pub fn test_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
           left: Val::Px(15.0),
           ..default()
         }),
-        Label,
+        ScoreTag::Player3Score,
       ));
       parent.spawn((
         TextBundle::from_section(
@@ -170,7 +191,7 @@ pub fn test_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
           right: Val::Px(15.0),
           ..default()
         }),
-        Label,
+        ScoreTag::Player4Score,
       ));
     });
 }

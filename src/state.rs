@@ -21,3 +21,11 @@ pub struct InGameState {
   pub player3: bool,
   pub player4: bool,
 }
+
+#[derive(Resource, Default)]
+pub struct PlayerScores {
+  pub player1: u32,
+  pub player2: u32,
+  pub player3: u32,
+  pub player4: u32,
+}

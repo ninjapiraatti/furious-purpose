@@ -13,7 +13,6 @@ pub struct PlayerPlugin;
 #[derive(Component, Debug, Clone)]
 struct Player {
   name: String,
-  score: usize,
   is_alive: bool,
 }
 
@@ -185,7 +184,6 @@ fn spawn_player(
     .insert(start_position)
     .insert(Player {
       name: player_name.to_string(),
-      score: 0,
       is_alive: true,
     });
 }
@@ -206,6 +204,7 @@ fn get_all_positions(
 }
 
 fn move_players(
+  mut scores: ResMut<state::PlayerScores>,
   mut segments: ResMut<PlayerSegments>,
   mut heads: Query<(Entity, &PlayerHead, &mut Player)>,
   mut positions: Query<&mut game::Position>,
@@ -237,6 +236,7 @@ fn move_players(
       || head_pos.y as u32 >= game::ARENA_HEIGHT
       || segment_positions.contains(&head_pos)
     {
+      scores.player1 += 1;
       game_over_players.push(player.name.clone());
       continue;
     }
