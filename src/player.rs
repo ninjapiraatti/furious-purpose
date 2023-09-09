@@ -3,7 +3,6 @@ use bevy::{
   prelude::{Input, KeyCode, Res},
 };
 
-use super::despawn_screen;
 use crate::{game, init, state};
 use rand::Rng;
 use std::collections::HashMap;
@@ -13,7 +12,6 @@ pub struct PlayerPlugin;
 #[derive(Component, Debug, Clone)]
 struct Player {
   name: String,
-  is_alive: bool,
   player_tag: game::PlayerTag,
 }
 
@@ -189,26 +187,9 @@ fn spawn_player(
     .insert(start_position)
     .insert(Player {
       name: player_name.to_string(),
-      is_alive: true,
       player_tag: tag,
     });
 }
-
-/*
-fn get_all_positions(
-  segments: &PlayerSegments,
-  positions: &Query<&mut game::Position>,
-) -> Vec<game::Position> {
-  segments
-    .0
-    .values()
-    .flat_map(|entities| {
-      entities
-        .iter()
-        .flat_map(|entity| positions.get(*entity).ok().map(|pos| *pos))
-    })
-    .collect()
-} */
 
 fn get_all_positions(
   segments: &PlayerSegments,
