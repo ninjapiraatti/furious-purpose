@@ -7,6 +7,11 @@ use crate::{game, init, state};
 use rand::Rng;
 use std::collections::HashMap;
 
+pub const COLOR_P1: Color = Color::rgb(0.99, 0.45, 0.0);
+pub const COLOR_P2: Color = Color::rgb(0.99, 0.25, 0.20);
+pub const COLOR_P3: Color = Color::rgb(0.5, 0.95, 0.3);
+pub const COLOR_P4: Color = Color::rgb(0.3, 0.75, 0.99);
+
 pub struct PlayerPlugin;
 
 #[derive(Component, Debug, Clone)]
@@ -329,10 +334,10 @@ fn grow_player_tails(
 
 fn spawn_segment(commands: &mut Commands, position: game::Position, player: Player) -> Entity {
   let color = match &player.name as &str {
-    "Cookie Crab" => Color::rgb(0.99, 0.45, 0.0),
-    "Sid Starfish" => Color::rgb(0.99, 0.25, 0.20),
-    "Foo Frog" => Color::rgb(0.5, 0.95, 0.3),
-    "Jabby Jellyfish" => Color::rgb(0.3, 0.75, 0.99),
+    "Cookie Crab" => COLOR_P1,
+    "Sid Starfish" => COLOR_P2,
+    "Foo Frog" => COLOR_P3,
+    "Jabby Jellyfish" => COLOR_P4,
     _ => Color::rgb(0.45, 0.0, 0.99), // Default color
   };
   commands

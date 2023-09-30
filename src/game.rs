@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 use super::despawn_screen;
 use crate::state;
+use crate::player;
 
 pub struct GamePlugin;
 
@@ -24,7 +25,7 @@ impl Plugin for GamePlugin {
   fn build(&self, app: &mut App) {
     app
       .add_state::<state::AppState>()
-      .add_systems(OnEnter(state::AppState::Game), test_ui)
+      .add_systems(OnEnter(state::AppState::Game), (test_ui, static_ui_texts))
       .add_systems(OnExit(state::AppState::Game), despawn_screen::<OnGame>)
       .add_systems(
         Update,
@@ -103,6 +104,73 @@ pub fn test_system(
   }
 }
 
+pub fn static_ui_texts(mut commands: Commands, asset_server: Res<AssetServer>) {
+  commands.spawn(
+    TextBundle::from_section(
+      "Cookie Crab",
+      TextStyle {
+        font: asset_server.load("OverpassMono-SemiBold.ttf"),
+        font_size: 10.0,
+        color: player::COLOR_P1,
+      },
+    )
+    .with_style(Style {
+      position_type: PositionType::Absolute,
+      top: Val::Px(10.0),
+      left: Val::Px(15.0),
+      ..default()
+    }),
+  );
+  commands.spawn(
+    TextBundle::from_section(
+      "Sid Starfish",
+      TextStyle {
+        font: asset_server.load("OverpassMono-SemiBold.ttf"),
+        font_size: 10.0,
+        color: player::COLOR_P2,
+      },
+    )
+    .with_style(Style {
+      position_type: PositionType::Absolute,
+      top: Val::Px(10.0),
+      right: Val::Px(15.0),
+      ..default()
+    }),
+  );
+  commands.spawn(
+    TextBundle::from_section(
+      "Foo Frog",
+      TextStyle {
+        font: asset_server.load("OverpassMono-SemiBold.ttf"),
+        font_size: 10.0,
+        color: player::COLOR_P3,
+      },
+    )
+    .with_style(Style {
+      position_type: PositionType::Absolute,
+      bottom: Val::Px(10.0),
+      left: Val::Px(15.0),
+      ..default()
+    }),
+  );
+  commands.spawn(
+    TextBundle::from_section(
+      "Jabby Jellyfish",
+      TextStyle {
+        font: asset_server.load("OverpassMono-SemiBold.ttf"),
+        font_size: 10.0,
+        color: player::COLOR_P4,
+      },
+    )
+    .with_style(Style {
+      position_type: PositionType::Absolute,
+      bottom: Val::Px(10.0),
+      right: Val::Px(15.0),
+      ..default()
+    }),
+  );
+}
+
 pub fn test_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
   commands
     .spawn((
@@ -128,12 +196,12 @@ pub fn test_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
           TextStyle {
             font: asset_server.load("OverpassMono-SemiBold.ttf"),
             font_size: 30.0,
-            color: Color::WHITE,
+            color: player::COLOR_P1,
           },
         )
         .with_style(Style {
           position_type: PositionType::Absolute,
-          top: Val::Px(5.0),
+          top: Val::Px(25.0),
           left: Val::Px(15.0),
           ..default()
         }),
@@ -148,12 +216,12 @@ pub fn test_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
           TextStyle {
             font: asset_server.load("OverpassMono-SemiBold.ttf"),
             font_size: 30.0,
-            color: Color::WHITE,
+            color: player::COLOR_P2,
           },
         )
         .with_style(Style {
           position_type: PositionType::Absolute,
-          top: Val::Px(5.0),
+          top: Val::Px(25.0),
           right: Val::Px(15.0),
           ..default()
         }),
@@ -165,12 +233,12 @@ pub fn test_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
           TextStyle {
             font: asset_server.load("OverpassMono-SemiBold.ttf"),
             font_size: 30.0,
-            color: Color::WHITE,
+            color: player::COLOR_P3,
           },
         )
         .with_style(Style {
           position_type: PositionType::Absolute,
-          bottom: Val::Px(5.0),
+          bottom: Val::Px(25.0),
           left: Val::Px(15.0),
           ..default()
         }),
@@ -182,12 +250,12 @@ pub fn test_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
           TextStyle {
             font: asset_server.load("OverpassMono-SemiBold.ttf"),
             font_size: 30.0,
-            color: Color::WHITE,
+            color: player::COLOR_P4,
           },
         )
         .with_style(Style {
           position_type: PositionType::Absolute,
-          bottom: Val::Px(5.0),
+          bottom: Val::Px(25.0),
           right: Val::Px(15.0),
           ..default()
         }),
