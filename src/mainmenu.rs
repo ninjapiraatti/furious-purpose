@@ -58,7 +58,6 @@ pub fn button_system(
 }
 
 pub fn ui_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-  println!("IN UI SETUP");
   commands
     .spawn((
       // These are not some mysterious double parentheses but a tuple
@@ -74,6 +73,22 @@ pub fn ui_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
       OnMainMenu,
     ))
     .with_children(|parent| {
+      parent.spawn(
+        TextBundle::from_section(
+          "Lorem ipsum",
+          TextStyle {
+            font: asset_server.load("OverpassMono-SemiBold.ttf"),
+            font_size: 20.0,
+            color: Color::WHITE,
+          },
+        )
+        .with_style(Style {
+          width: Val::Px(600.0),
+          align_items: AlignItems::Center,
+          position_type: PositionType::Absolute,
+          ..default()
+        }),
+      );
       parent
         .spawn(ButtonBundle {
           style: Style {

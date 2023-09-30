@@ -85,8 +85,8 @@ fn player_spawn_input(
   if !in_game_state.player1 && keyboard_input.any_just_pressed([KeyCode::Q, KeyCode::W]) {
     println!("Spawn player 1");
     let start_position = game::Position {
-      x: rng.gen_range(100..1100),
-      y: rng.gen_range(100..700),
+      x: rng.gen_range(10..310),
+      y: rng.gen_range(10..230),
     };
     spawn_player(
       &mut commands,
@@ -100,8 +100,8 @@ fn player_spawn_input(
   if !in_game_state.player2 && keyboard_input.any_just_pressed([KeyCode::B, KeyCode::N]) {
     println!("Spawn player 2");
     let start_position = game::Position {
-      x: rng.gen_range(100..1100),
-      y: rng.gen_range(100..700),
+      x: rng.gen_range(10..310),
+      y: rng.gen_range(10..230),
     };
     spawn_player(
       &mut commands,
@@ -111,6 +111,36 @@ fn player_spawn_input(
       Direction::Down,
     );
     in_game_state.player2 = true;
+  }
+  if !in_game_state.player3 && keyboard_input.any_just_pressed([KeyCode::O, KeyCode::P]) {
+    println!("Spawn player 3");
+    let start_position = game::Position {
+      x: rng.gen_range(10..310),
+      y: rng.gen_range(10..230),
+    };
+    spawn_player(
+      &mut commands,
+      &textures,
+      "Foo Frog",
+      start_position,
+      Direction::Down,
+    );
+    in_game_state.player3 = true;
+  }
+  if !in_game_state.player4 && keyboard_input.any_just_pressed([KeyCode::Left, KeyCode::Right]) {
+    println!("Spawn player 4");
+    let start_position = game::Position {
+      x: rng.gen_range(10..310),
+      y: rng.gen_range(10..230),
+    };
+    spawn_player(
+      &mut commands,
+      &textures,
+      "Jabby Jellyfish",
+      start_position,
+      Direction::Down,
+    );
+    in_game_state.player4 = true;
   }
 }
 

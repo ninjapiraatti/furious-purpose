@@ -17,13 +17,13 @@ fn main() {
     .add_plugins(DefaultPlugins.set(WindowPlugin {
       primary_window: Some(Window {
         title: "Aninmals".to_string(),
-        resolution: (1200., 800.).into(),
+        resolution: (640., 360.).into(),
         present_mode: PresentMode::AutoVsync,
         ..default()
       }),
       ..default()
     }))
-    .insert_resource(ClearColor(Color::rgb(0.1, 0.1, 0.1)))
+    .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)))
     .insert_resource(state::InGameState::default())
     .insert_resource(state::PlayerScores::default())
     .insert_resource(player::PlayerSegments::default())
