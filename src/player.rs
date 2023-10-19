@@ -85,8 +85,8 @@ fn player_spawn_input(
   if !in_game_state.player1 && keyboard_input.any_just_pressed([KeyCode::Q, KeyCode::W]) {
     println!("Spawn player 1");
     let start_position = game::Position {
-      x: rng.gen_range(10..310),
-      y: rng.gen_range(10..230),
+      x: rng.gen_range(100..540),
+      y: rng.gen_range(80..280),
     };
     spawn_player(
       &mut commands,
@@ -100,8 +100,8 @@ fn player_spawn_input(
   if !in_game_state.player2 && keyboard_input.any_just_pressed([KeyCode::B, KeyCode::N]) {
     println!("Spawn player 2");
     let start_position = game::Position {
-      x: rng.gen_range(10..310),
-      y: rng.gen_range(10..230),
+      x: rng.gen_range(100..540),
+      y: rng.gen_range(80..280),
     };
     spawn_player(
       &mut commands,
@@ -115,8 +115,8 @@ fn player_spawn_input(
   if !in_game_state.player3 && keyboard_input.any_just_pressed([KeyCode::O, KeyCode::P]) {
     println!("Spawn player 3");
     let start_position = game::Position {
-      x: rng.gen_range(10..310),
-      y: rng.gen_range(10..230),
+      x: rng.gen_range(100..540),
+      y: rng.gen_range(80..280),
     };
     spawn_player(
       &mut commands,
@@ -130,8 +130,8 @@ fn player_spawn_input(
   if !in_game_state.player4 && keyboard_input.any_just_pressed([KeyCode::Left, KeyCode::Right]) {
     println!("Spawn player 4");
     let start_position = game::Position {
-      x: rng.gen_range(10..310),
-      y: rng.gen_range(10..230),
+      x: rng.gen_range(100..540),
+      y: rng.gen_range(80..280),
     };
     spawn_player(
       &mut commands,
@@ -297,11 +297,22 @@ fn move_players(
           player_tag, pos
         );
         game_over_players.push(player.name.clone());
-        match player_tag {
-          game::PlayerTag::Player1 => scores.player1 += 1,
-          game::PlayerTag::Player2 => scores.player2 += 1,
-          game::PlayerTag::Player3 => scores.player3 += 1,
-          game::PlayerTag::Player4 => scores.player4 += 1,
+        if *player_tag == player.player_tag {
+          // The player ran into their own segment, so deduct points
+          match player_tag {
+            game::PlayerTag::Player1 => scores.player1 -= 1,
+            game::PlayerTag::Player2 => scores.player2 -= 1,
+            game::PlayerTag::Player3 => scores.player3 -= 1,
+            game::PlayerTag::Player4 => scores.player4 -= 1,
+          }
+        } else {
+          // The player ran into another player's segment, so add points
+          match player_tag {
+            game::PlayerTag::Player1 => scores.player1 += 1,
+            game::PlayerTag::Player2 => scores.player2 += 1,
+            game::PlayerTag::Player3 => scores.player3 += 1,
+            game::PlayerTag::Player4 => scores.player4 += 1,
+          }
         }
         continue; // or continue depending on your game logic
       }

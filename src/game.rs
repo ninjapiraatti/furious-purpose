@@ -6,7 +6,7 @@ use crate::state;
 
 pub struct GamePlugin;
 
-#[derive(Component, Debug, Clone, Copy)]
+#[derive(Component, Debug, Clone, Copy, PartialEq)]
 pub enum PlayerTag {
   Player1,
   Player2,

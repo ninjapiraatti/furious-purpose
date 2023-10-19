@@ -24,8 +24,8 @@ pub struct InGameState {
 
 #[derive(Resource, Default)]
 pub struct PlayerScores {
-  pub player1: u32,
-  pub player2: u32,
-  pub player3: u32,
-  pub player4: u32,
+  pub player1: i32,
+  pub player2: i32,
+  pub player3: i32,
+  pub player4: i32,
 }
