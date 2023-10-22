@@ -18,11 +18,7 @@ impl Plugin for InitPlugin {
       )
       .add_collection_to_loading_state::<_, FontAssets>(state::AppState::Loading)
       .add_collection_to_loading_state::<_, ImageAssets>(state::AppState::Loading)
-      .add_collection_to_loading_state::<_, TextureAssets>(state::AppState::Loading)
-      .add_systems(
-        Update,
-        log_loading_done.run_if(in_state(state::AppState::Splash)),
-      );
+      .add_collection_to_loading_state::<_, TextureAssets>(state::AppState::Loading);
   }
 }
 
@@ -62,8 +58,4 @@ pub struct TextureAssets {
   pub frog: Handle<Image>,
   #[asset(path = "jellyfish.png")]
   pub jellyfish: Handle<Image>,
-}
-
-fn log_loading_done() {
-  println!("Loading done");
 }

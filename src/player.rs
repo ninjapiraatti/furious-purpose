@@ -83,7 +83,6 @@ fn player_spawn_input(
 ) {
   let mut rng = rand::thread_rng();
   if !in_game_state.player1 && keyboard_input.any_just_pressed([KeyCode::Q, KeyCode::W]) {
-    println!("Spawn player 1");
     let start_position = game::Position {
       x: rng.gen_range(100..540),
       y: rng.gen_range(80..280),
@@ -98,7 +97,6 @@ fn player_spawn_input(
     in_game_state.player1 = true;
   }
   if !in_game_state.player2 && keyboard_input.any_just_pressed([KeyCode::B, KeyCode::N]) {
-    println!("Spawn player 2");
     let start_position = game::Position {
       x: rng.gen_range(100..540),
       y: rng.gen_range(80..280),
@@ -113,7 +111,6 @@ fn player_spawn_input(
     in_game_state.player2 = true;
   }
   if !in_game_state.player3 && keyboard_input.any_just_pressed([KeyCode::O, KeyCode::P]) {
-    println!("Spawn player 3");
     let start_position = game::Position {
       x: rng.gen_range(100..540),
       y: rng.gen_range(80..280),
@@ -128,7 +125,6 @@ fn player_spawn_input(
     in_game_state.player3 = true;
   }
   if !in_game_state.player4 && keyboard_input.any_just_pressed([KeyCode::Left, KeyCode::Right]) {
-    println!("Spawn player 4");
     let start_position = game::Position {
       x: rng.gen_range(100..540),
       y: rng.gen_range(80..280),
@@ -195,7 +191,6 @@ fn spawn_player(
   start_position: game::Position,
   direction: Direction,
 ) {
-  println!("SPAWNING: {:?}", player_name);
   let texture = match player_name {
     "Cookie Crab" => textures.crab.clone(),
     "Sid Starfish" => textures.starfish.clone(),
@@ -266,7 +261,6 @@ fn move_players(
   let mut game_over_players = Vec::new();
   for (head_entity, head, player) in heads.iter_mut() {
     let mut head_pos = positions.get_mut(head_entity).unwrap();
-    //println!("head pos: {:?}", head_pos);
     match head.direction {
       Direction::Left => {
         head_pos.x += -1;
@@ -292,10 +286,6 @@ fn move_players(
     // Assuming all_segment_data is a Vec<(game::Position, game::PlayerTag)>
     for (pos, player_tag) in &segment_positions {
       if *pos == *head_pos {
-        println!(
-          "Collision detected with segment owned by {:?} at position {:?}",
-          player_tag, pos
-        );
         game_over_players.push(player.name.clone());
         if *player_tag == player.player_tag {
           // The player ran into their own segment, so deduct points

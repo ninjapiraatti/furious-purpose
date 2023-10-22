@@ -32,7 +32,6 @@ impl Plugin for SplashPlugin {
 }
 
 fn splash_setup(mut commands: Commands, image_assets: Res<ImageAssets>) {
-  println!("IN SPLASH SETUP");
   let icon = image_assets.logo.clone();
   commands.insert_resource(SplashTimer(Timer::from_seconds(1.0, TimerMode::Once)));
 
@@ -69,10 +68,7 @@ fn countdown(
   time: Res<Time>,
   mut timer: ResMut<SplashTimer>,
 ) {
-  println!("In countdown");
   if timer.tick(time.delta()).finished() {
-    println!("CHANGE SCENE");
     next_state.set(state::AppState::MainMenu);
   }
-  println!("{:?}", timer.elapsed_secs());
 }

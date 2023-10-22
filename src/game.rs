@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use super::despawn_screen;
 use crate::player;
 use crate::state;
+use bevy::app::AppExit;
 
 pub struct GamePlugin;
 
@@ -17,10 +18,6 @@ pub enum PlayerTag {
 pub const ARENA_WIDTH: u32 = 640;
 pub const ARENA_HEIGHT: u32 = 360;
 
-const NORMAL_BUTTON: Color = Color::rgb(0.65, 0.15, 0.15);
-const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.95, 0.25);
-const PRESSED_BUTTON: Color = Color::rgb(0.95, 0.75, 0.15);
-
 impl Plugin for GamePlugin {
   fn build(&self, app: &mut App) {
     app
@@ -29,7 +26,7 @@ impl Plugin for GamePlugin {
       .add_systems(OnExit(state::AppState::Game), despawn_screen::<OnGame>)
       .add_systems(
         Update,
-        (test_system, position_translation, score_update_system)
+        (position_translation, score_update_system, ingame_input)
           .run_if(in_state(state::AppState::Game)),
       );
   }
@@ -43,6 +40,16 @@ struct OnGame;
 pub struct Position {
   pub x: i32,
   pub y: i32,
+}
+
+fn ingame_input(
+  keyboard_input: Res<Input<KeyCode>>,
+  mut exit: EventWriter<AppExit>
+) {
+  if keyboard_input.any_just_pressed([KeyCode::Escape]) {
+    println!("Thanks for playing Aninmals Tron!");
+    exit.send(AppExit);
+  }
 }
 
 fn position_translation(
@@ -73,33 +80,6 @@ fn score_update_system(
       PlayerTag::Player2 => text.sections[0].value = scores.player2.to_string(),
       PlayerTag::Player3 => text.sections[0].value = scores.player3.to_string(),
       PlayerTag::Player4 => text.sections[0].value = scores.player4.to_string(),
-    }
-  }
-}
-
-pub fn test_system(
-  mut interaction_query: Query<
-    (&Interaction, &mut BackgroundColor, &Children),
-    (Changed<Interaction>, With<Button>),
-  >,
-  mut text_query: Query<&mut Text>,
-) {
-  for (interaction, mut color, children) in &mut interaction_query {
-    let mut text = text_query.get_mut(children[0]).unwrap();
-    match *interaction {
-      Interaction::Pressed => {
-        text.sections[0].value = "^ - ^".to_string();
-        *color = PRESSED_BUTTON.into();
-      }
-      Interaction::Hovered => {
-        text.sections[0].value = "LOLL".to_string();
-        *color = HOVERED_BUTTON.into();
-        println!("Hover");
-      }
-      Interaction::None => {
-        //text.sections[0].value = "LOLL".to_string();
-        *color = NORMAL_BUTTON.into();
-      }
     }
   }
 }
@@ -263,52 +243,3 @@ pub fn test_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
       ));
     });
 }
-
-/*
-pub fn game_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-  commands
-    .spawn((
-      // These are not some mysterious double parentheses but a tuple
-      NodeBundle {
-        style: Style {
-          width: Val::Px(100.0),
-          height: Val::Px(100.0),
-          align_items: AlignItems::Center,
-          justify_content: JustifyContent::Center,
-          ..default()
-        },
-        ..default()
-      },
-      OnGame,
-    ))
-    .with_children(|parent| {
-      parent
-        .spawn(ButtonBundle {
-          style: Style {
-            width: Val::Px(100.0),
-            height: Val::Px(50.0),
-            // horizontally center child text
-            position_type: PositionType::Absolute,
-            left: Val::Px(10.0),
-            top: Val::Px(10.0),
-            justify_content: JustifyContent::Center,
-            // vertically center child text
-            align_items: AlignItems::Center,
-            ..default()
-          },
-          background_color: NORMAL_BUTTON.into(),
-          ..default()
-        })
-        .with_children(|parent| {
-          parent.spawn(TextBundle::from_section(
-            "In game",
-            TextStyle {
-              font: asset_server.load("OverpassMono-SemiBold.ttf"),
-              font_size: 20.0,
-              color: Color::rgb(0.9, 0.9, 0.9),
-            },
-          ));
-        });
-    });
-}
-*/
